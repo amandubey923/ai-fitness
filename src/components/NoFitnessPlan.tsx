@@ -3,7 +3,7 @@ import CornerElements from "./CornerElements";
 import { Button } from "./ui/button";
 import { ArrowRightIcon } from "lucide-react";
 
-const NoFitnessPlan = () => {
+const NoFitnessplan = () => {
   return (
     <div className="relative backdrop-blur-sm border border-border rounded-lg p-10 text-center">
       <CornerElements />
@@ -22,7 +22,7 @@ const NoFitnessPlan = () => {
       >
         <Link href="/generate-program">
           <span className="relative flex items-center">
-            Create Your First Plan
+            Create Your First plan
             <ArrowRightIcon className="ml-2 h-5 w-5" />
           </span>
         </Link>
@@ -30,4 +30,4 @@ const NoFitnessPlan = () => {
     </div>
   );
 };
-export default NoFitnessPlan;
+export default NoFitnessplan;

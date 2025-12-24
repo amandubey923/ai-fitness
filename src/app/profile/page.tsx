@@ -3,7 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useState } from "react";
+import { useState, type JSXElementConstructor, type Key, type ReactElement, type ReactNode, type ReactPortal } from "react";
 import ProfileHeader from "@/components/ProfileHeader";
 import NoFitnessPlan from "@/components/NoFitnessPlan";
 import CornerElements from "@/components/CornerElements";
@@ -21,7 +21,7 @@ const ProfilePage = () => {
   const { user } = useUser();
   const userId = user?.id as string;
 
-  const allPlans = useQuery(api.plan.getUserPlans, { userId });
+  const allPlans = useQuery(api.plans.getUserplans, { userId });
   const [selectedPlanId, setSelectedPlanId] = useState<null | string>(null);
 
   const activePlan = allPlans?.find((plan) => plan.isActive);
@@ -31,7 +31,7 @@ const ProfilePage = () => {
     : activePlan;
 
   return (
-    <section className="relative z-10 pt-12 pb-32 grow container mx-auto px-4">
+    <section className="relative z-10 pt-12 pb-32 flex-grow container mx-auto px-4">
       <ProfileHeader user={user} />
 
       {allPlans && allPlans?.length > 0 ? (
@@ -108,12 +108,12 @@ const ProfilePage = () => {
                     <div className="flex items-center gap-2 mb-4">
                       <CalendarIcon className="h-4 w-4 text-primary" />
                       <span className="font-mono text-sm text-muted-foreground">
-                        SCHEDULE: {currentPlan.workoutPlan.schedule.join(", ")}
+                        SCHEDULE: {currentPlan.workoutplan.schedule.join(", ")}
                       </span>
                     </div>
 
                     <Accordion type="multiple" className="space-y-4">
-                      {currentPlan.workoutPlan.exercises.map((exerciseDay, index) => (
+                      {currentPlan.workoutplan.exercises.map((exerciseDay, index) => (
                         <AccordionItem
                           key={index}
                           value={exerciseDay.day}
@@ -170,14 +170,14 @@ const ProfilePage = () => {
                         DAILY CALORIE TARGET
                       </span>
                       <div className="font-mono text-xl text-primary">
-                        {currentPlan.dietPlan.dailyCalories} KCAL
+                        {currentPlan.dietplan.dailyCalories} KCAL
                       </div>
                     </div>
 
                     <div className="h-px w-full bg-border my-4"></div>
 
                     <div className="space-y-4">
-                      {currentPlan.dietPlan.meals.map((meal, index) => (
+                      {currentPlan.dietplan.meals.map((meal: { name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; foods: any[]; }, index: Key | null | undefined) => (
                         <div
                           key={index}
                           className="border border-border rounded-lg overflow-hidden p-4"

@@ -1,11 +1,11 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-export const createPlan = mutation({
+export const createplan = mutation({
   args: {
     userId: v.string(),
     name: v.string(),
-    workoutPlan: v.object({
+    workoutplan: v.object({
       schedule: v.array(v.string()),
       exercises: v.array(
         v.object({
@@ -20,7 +20,7 @@ export const createPlan = mutation({
         })
       ),
     }),
-    dietPlan: v.object({
+    dietplan: v.object({
       dailyCalories: v.number(),
       meals: v.array(
         v.object({
@@ -32,13 +32,13 @@ export const createPlan = mutation({
     isActive: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const activePlans = await ctx.db
+    const activeplans = await ctx.db
       .query("plans")
       .withIndex("by_user_id", (q) => q.eq("userId", args.userId))
       .filter((q) => q.eq(q.field("isActive"), true))
       .collect();
 
-    for (const plan of activePlans) {
+    for (const plan of activeplans) {
       await ctx.db.patch(plan._id, { isActive: false });
     }
 
@@ -48,7 +48,7 @@ export const createPlan = mutation({
   },
 });
 
-export const getUserPlans = query({
+export const getUserplans = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
     const plans = await ctx.db

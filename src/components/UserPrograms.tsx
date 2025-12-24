@@ -25,7 +25,7 @@ const UserPrograms = () => {
               <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
               <span className="text-sm text-primary font-medium">Program Gallery</span>
             </div>
-            <div className="text-sm text-muted-foreground">Featured Plans</div>
+            <div className="text-sm text-muted-foreground">Featured plans</div>
           </div>
 
           {/* HEADER CONTENT */}

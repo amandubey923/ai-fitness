@@ -24,7 +24,7 @@ export const USER_PROGRAMS = [
         "This program focuses on building a consistent exercise habit with joint-friendly movements that protect your lower back. The mix of cardio and strength training supports weight loss while preserving muscle mass.",
     },
     diet_plan: {
-      title: "Balanced Nutrition Plan (Lactose-Free)",
+      title: "Balanced Nutrition plan (Lactose-Free)",
       daily_calories: "1,600 calories",
       macros: { protein: "30%", carbs: "40%", fats: "30%" },
       meal_examples: [
@@ -63,7 +63,7 @@ export const USER_PROGRAMS = [
         "This program implements a traditional body-part split with emphasis on progressive overload. Each muscle group is trained with moderate volume and adequate recovery to maximize muscle growth.",
     },
     diet_plan: {
-      title: "Muscle Building Nutrition Plan",
+      title: "Muscle Building Nutrition plan",
       daily_calories: "2,800 calories",
       macros: { protein: "30%", carbs: "50%", fats: "20%" },
       meal_examples: [

@@ -91,8 +91,8 @@ http.route({
 });
 
 // validate and fix workout plan to ensure it has proper numeric types
-function validateWorkoutPlan(plan: any) {
-  const validatedPlan = {
+function validateWorkoutplan(plan: any) {
+  const validatedplan = {
     schedule: plan.schedule,
     exercises: plan.exercises.map((exercise: any) => ({
       day: exercise.day,
@@ -103,20 +103,20 @@ function validateWorkoutPlan(plan: any) {
       })),
     })),
   };
-  return validatedPlan;
+  return validatedplan;
 }
 
 // validate diet plan to ensure it strictly follows schema
-function validateDietPlan(plan: any) {
+function validateDietplan(plan: any) {
   // only keep the fields we want
-  const validatedPlan = {
+  const validatedplan = {
     dailyCalories: plan.dailyCalories,
     meals: plan.meals.map((meal: any) => ({
       name: meal.name,
       foods: meal.foods,
     })),
   };
-  return validatedPlan;
+  return validatedplan;
 }
 
 http.route({
@@ -193,11 +193,11 @@ http.route({
       DO NOT add any fields that are not in this example. Your response must be a valid JSON object with no additional text.`;
 
       const workoutResult = await model.generateContent(workoutPrompt);
-      const workoutPlanText = workoutResult.response.text();
+      const workoutplanText = workoutResult.response.text();
 
       // VALIDATE THE INPUT COMING FROM AI
-      let workoutPlan = JSON.parse(workoutPlanText);
-      workoutPlan = validateWorkoutPlan(workoutPlan);
+      let workoutplan = JSON.parse(workoutplanText);
+      workoutplan = validateWorkoutplan(workoutplan);
 
       const dietPrompt = `You are an experienced nutrition coach creating a personalized diet plan based on:
         Age: ${age}
@@ -237,19 +237,19 @@ http.route({
         DO NOT add any fields that are not in this example. Your response must be a valid JSON object with no additional text.`;
 
       const dietResult = await model.generateContent(dietPrompt);
-      const dietPlanText = dietResult.response.text();
+      const dietplanText = dietResult.response.text();
 
       // VALIDATE THE INPUT COMING FROM AI
-      let dietPlan = JSON.parse(dietPlanText);
-      dietPlan = validateDietPlan(dietPlan);
+      let dietplan = JSON.parse(dietplanText);
+      dietplan = validateDietplan(dietplan);
 
       // save to our DB: CONVEX
-      const planId = await ctx.runMutation(api.plans.createPlan, {
+      const planId = await ctx.runMutation(api.plans.createplan, {
         userId: user_id,
-        dietPlan,
+        dietplan,
         isActive: true,
-        workoutPlan,
-        name: `${fitness_goal} Plan - ${new Date().toLocaleDateString()}`,
+        workoutplan,
+        name: `${fitness_goal} plan - ${new Date().toLocaleDateString()}`,
       });
 
       return new Response(
@@ -257,8 +257,8 @@ http.route({
           success: true,
           data: {
             planId,
-            workoutPlan,
-            dietPlan,
+            workoutplan,
+            dietplan,
           },
         }),
         {
