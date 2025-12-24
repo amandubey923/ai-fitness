@@ -18,7 +18,7 @@ const ProfileHeader = ({ user }: { user: UserResource | null | undefined }) => {
               />
             </div>
           ) : (
-            <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+            <div className="w-24 h-24 rounded-lg bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
               <span className="text-3xl font-bold text-primary">
                 {user.fullName?.charAt(0) || "U"}
               </span>
@@ -37,7 +37,7 @@ const ProfileHeader = ({ user }: { user: UserResource | null | undefined }) => {
               <p className="text-xs font-mono text-primary">USER ACTIVE</p>
             </div>
           </div>
-          <div className="h-px w-full bg-gradient-to-r from-primary via-secondary to-primary opacity-50 my-2"></div>
+          <div className="h-px w-full bg-linear-to-r from-primary via-secondary to-primary opacity-50 my-2"></div>
           <p className="text-muted-foreground font-mono">
             {user.primaryEmailAddress?.emailAddress}
           </p>
