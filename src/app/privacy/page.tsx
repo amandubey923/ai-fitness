@@ -1,77 +1,126 @@
 "use client";
 
 import CornerElements from "@/components/CornerElements";
+import FitPilotLogo from "@/components/FitPilotLogo";
+import { ShieldCheck, Lock, Database, EyeOff } from "lucide-react";
 
-const PrivacyPage = () => {
+export default function PrivacyPage() {
   return (
-    <section className="relative z-10 pt-16 pb-32 container mx-auto px-4 space-y-10">
+    <div className="container mx-auto px-4 py-8 sm:py-10 max-w-4xl space-y-6">
+      {/* HEADER */}
+      <div className="relative backdrop-blur-sm border border-border bg-card/60 rounded-xl p-5 sm:p-7">
+        <CornerElements />
 
-      <Header
-        title="Privacy Policy"
-        subtitle="Your privacy matters. Here’s how we protect your data."
-      />
+        <div className="flex items-center gap-2 mb-2.5">
+          <div className="p-1.5 rounded bg-primary/10 border border-primary/30">
+            <FitPilotLogo size={18} />
+          </div>
+          <span className="font-mono text-xs font-semibold text-primary uppercase tracking-wider">
+            SECURITY PROTOCOL // DATA PRIVACY
+          </span>
+        </div>
 
-      <ContentCard title="1. Information We Collect">
-        We collect information you provide such as name, email,
-        fitness preferences, and usage data to improve our services.
-      </ContentCard>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-2 font-mono">
+          Privacy <span className="text-primary">Policy</span>
+        </h1>
 
-      <ContentCard title="2. How We Use Your Data">
-        Data is used to personalize workout and diet plans, improve
-        platform performance, and enhance user experience.
-      </ContentCard>
+        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+          Last Updated: September 2026. This policy describes truthfully and transparently what information FitPilot AI collects, how it is processed by our AI models, and where your data resides.
+        </p>
+      </div>
 
-      <ContentCard title="3. Data Security">
-        We use industry-standard security measures including
-        authentication, encryption, and access control.
-      </ContentCard>
+      {/* THREE PILLARS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <div className="p-4 rounded-lg border border-border bg-card/40 space-y-1">
+          <div className="flex items-center gap-1.5 text-primary text-xs font-mono font-bold">
+            <Lock className="size-3.5" />
+            <span>NO DATA SELLING</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            We never monetize, broker, or sell your health metrics or personal email to advertisers.
+          </p>
+        </div>
 
-      <ContentCard title="4. Data Sharing">
-        We do not sell your personal data. Information is shared only
-        when legally required or to provide essential services.
-      </ContentCard>
+        <div className="p-4 rounded-lg border border-border bg-card/40 space-y-1">
+          <div className="flex items-center gap-1.5 text-primary text-xs font-mono font-bold">
+            <Database className="size-3.5" />
+            <span>CONVEX STORAGE</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Plans are stored in Convex Cloud securely partitioned by your unique Clerk user ID.
+          </p>
+        </div>
 
-      <ContentCard title="5. Cookies & Analytics">
-        Cookies help us understand usage patterns and optimize
-        performance. You may disable cookies in your browser settings.
-      </ContentCard>
+        <div className="p-4 rounded-lg border border-border bg-card/40 space-y-1">
+          <div className="flex items-center gap-1.5 text-primary text-xs font-mono font-bold">
+            <EyeOff className="size-3.5" />
+            <span>LOCAL PRIVACY</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Daily workout checklist states are kept client-side inside your browser’s localStorage.
+          </p>
+        </div>
+      </div>
 
-      <ContentCard title="6. Your Rights">
-        You have the right to access, modify, or delete your personal
-        data. Contact us for any privacy-related requests.
-      </ContentCard>
+      {/* DETAILED SECTIONS */}
+      <div className="space-y-3.5">
+        <div className="relative backdrop-blur-sm border border-border bg-card/40 rounded-lg p-4 sm:p-5">
+          <CornerElements />
+          <h2 className="font-mono text-sm font-bold text-foreground mb-1.5 text-primary">
+            01 // INFORMATION WE COLLECT
+          </h2>
+          <ul className="space-y-1.5 text-xs text-muted-foreground">
+            <li>• <strong>Account Identity:</strong> Your name, email, and avatar image managed securely through Clerk Authentication.</li>
+            <li>• <strong>Fitness Parameters:</strong> Age, height, weight, workout frequency, goal (e.g. Muscle Gain), intensity level, dietary preferences, and limitation notes provided during generation.</li>
+          </ul>
+        </div>
 
-      <ContentCard title="7. Policy Updates">
-        This policy may change periodically. Updates will be reflected
-        on this page.
-      </ContentCard>
+        <div className="relative backdrop-blur-sm border border-border bg-card/40 rounded-lg p-4 sm:p-5">
+          <CornerElements />
+          <h2 className="font-mono text-sm font-bold text-foreground mb-1.5 text-primary">
+            02 // HOW AI PROCESSING OPERATES
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            When you generate or modify a plan, your parameters are transmitted to AI completion endpoints (Google Gemini and Groq Llama 3.3). These APIs process the prompt strictly to generate JSON workout and diet plans. Your data is not used by FitPilot AI for public training callouts.
+          </p>
+        </div>
 
-    </section>
+        <div className="relative backdrop-blur-sm border border-border bg-card/40 rounded-lg p-4 sm:p-5">
+          <CornerElements />
+          <h2 className="font-mono text-sm font-bold text-foreground mb-1.5 text-primary">
+            03 // THIRD-PARTY INFRASTRUCTURE
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+            FitPilot AI integrates verified cloud infrastructure partners to operate:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono text-muted-foreground">
+            <span className="p-2 rounded bg-background/50 border border-border">Clerk — Identity & Session Authentication</span>
+            <span className="p-2 rounded bg-background/50 border border-border">Convex — Real-Time Database Storage</span>
+            <span className="p-2 rounded bg-background/50 border border-border">Google Gemini & Groq — AI Inference</span>
+            <span className="p-2 rounded bg-background/50 border border-border">Vercel — Application Hosting</span>
+          </div>
+        </div>
+
+        <div className="relative backdrop-blur-sm border border-border bg-card/40 rounded-lg p-4 sm:p-5">
+          <CornerElements />
+          <h2 className="font-mono text-sm font-bold text-foreground mb-1.5 text-primary">
+            04 // COOKIES & CLIENT STORAGE
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            We use strictly functional cookies provided by Clerk to maintain active sessions. We do not deploy third-party advertising trackers. Your workout completion checkmarks are stored locally in your browser storage (`fitpilot_completed_*`).
+          </p>
+        </div>
+
+        <div className="relative backdrop-blur-sm border border-border bg-card/40 rounded-lg p-4 sm:p-5">
+          <CornerElements />
+          <h2 className="font-mono text-sm font-bold text-foreground mb-1.5 text-primary">
+            05 // YOUR DATA RIGHTS & INQUIRIES
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            You maintain full control over your data. You may generate new active plans, switch active plans, or request full account deletion by contacting our team via the Contact page or emailing <span className="text-foreground font-mono">support@fitpilot.ai</span>.
+          </p>
+        </div>
+      </div>
+    </div>
   );
-};
-
-export default PrivacyPage;
-
-/* ---------- SAME REUSABLE ---------- */
-
-const Header = ({ title, subtitle }: { title: string; subtitle: string }) => (
-  <div className="relative backdrop-blur-sm border border-border rounded-xl p-8">
-    <CornerElements />
-    <h1 className="text-3xl font-bold mb-3">{title}</h1>
-    <p className="text-muted-foreground max-w-3xl">{subtitle}</p>
-  </div>
-);
-
-const ContentCard = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => (
-  <div className="relative backdrop-blur-sm border border-border rounded-lg p-6">
-    <CornerElements />
-    <h2 className="text-lg font-semibold mb-2">{title}</h2>
-    <p className="text-muted-foreground leading-relaxed">{children}</p>
-  </div>
-);
+}
