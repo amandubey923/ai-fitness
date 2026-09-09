@@ -2,323 +2,393 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { vapi } from "@/lib/vapi";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { useAction } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import CornerElements from "@/components/CornerElements";
+
+// ─── Form field options ───────────────────────────────────────────────────────
+
+const FITNESS_GOALS = [
+  "Weight Loss",
+  "Muscle Gain",
+  "General Fitness",
+  "Endurance",
+  "Strength",
+  "Flexibility",
+];
+
+const FITNESS_LEVELS = ["Beginner", "Intermediate", "Advanced"];
+
+const DIETARY_OPTIONS = [
+  "None",
+  "Vegetarian",
+  "Vegan",
+  "Lactose Intolerant",
+  "Gluten-Free",
+  "Keto",
+  "Halal",
+  "Other",
+];
+
+const WORKOUT_DAYS = [1, 2, 3, 4, 5, 6, 7];
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface FormState {
+  age: string;
+  height: string;
+  weight: string;
+  injuries: string;
+  workout_days: string;
+  fitness_goal: string;
+  fitness_level: string;
+  dietary_restrictions: string;
+}
+
+const INITIAL_FORM: FormState = {
+  age: "",
+  height: "",
+  weight: "",
+  injuries: "",
+  workout_days: "3",
+  fitness_goal: "",
+  fitness_level: "",
+  dietary_restrictions: "None",
+};
+
+// ─── Shared input/select class ────────────────────────────────────────────────
+
+const fieldClass =
+  "w-full bg-background/50 border border-border text-foreground rounded-md px-3 py-2 text-sm " +
+  "focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 " +
+  "placeholder:text-muted-foreground transition-colors";
+
+// ─── Page component ───────────────────────────────────────────────────────────
 
 const GenerateProgramPage = () => {
-  const [callActive, setCallActive] = useState(false);
-  const [connecting, setConnecting] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [callEnded, setCallEnded] = useState(false);
-
   const { user } = useUser();
   const router = useRouter();
 
-  const messageContainerRef = useRef<HTMLDivElement>(null);
+  const [form, setForm] = useState<FormState>(INITIAL_FORM);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // SOLUTION to get rid of "Meeting has ended" error
-  useEffect(() => {
-    const originalError = console.error;
-    // override console.error to ignore "Meeting has ended" errors
-    console.error = function (msg, ...args) {
-      if (
-        msg &&
-        (msg.includes("Meeting has ended") ||
-          (args[0] && args[0].toString().includes("Meeting has ended")))
-      ) {
-        console.log("Ignoring known error: Meeting has ended");
-        return; // don't pass to original handler
-      }
+  const generatePlan = useAction(api.generate.generateFitnessPlan);
 
-      // pass all other errors to the original handler
-      return originalError.call(console, msg, ...args);
-    };
+  // ── Field change handler ─────────────────────────────────────────────────
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError(null);
+  };
 
-    // restore original handler on unmount
-    return () => {
-      console.error = originalError;
-    };
-  }, []);
-
-  // auto-scroll messages
-  useEffect(() => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+  // ── Validation ────────────────────────────────────────────────────────────
+  const validate = (): string | null => {
+    const ageNum = parseInt(form.age, 10);
+    if (!form.age || isNaN(ageNum) || ageNum < 10 || ageNum > 100) {
+      return "Please enter a valid age between 10 and 100.";
     }
-  }, [messages]);
+    if (!form.height.trim()) return "Please enter your height.";
+    if (!form.weight.trim()) return "Please enter your weight.";
+    const days = parseInt(form.workout_days, 10);
+    if (isNaN(days) || days < 1 || days > 7) {
+      return "Please select a valid number of workout days (1–7).";
+    }
+    if (!form.fitness_goal) return "Please select your fitness goal.";
+    if (!form.fitness_level) return "Please select your fitness level.";
+    if (!form.dietary_restrictions) return "Please select a dietary preference.";
+    return null;
+  };
 
-  // navigate user to profile page after the call ends
-  useEffect(() => {
-    if (callEnded) {
-      const redirectTimer = setTimeout(() => {
+  // ── Submit ────────────────────────────────────────────────────────────────
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isGenerating || isSuccess) return;
+
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      await generatePlan({
+        age: form.age.trim(),
+        height: form.height.trim(),
+        weight: form.weight.trim(),
+        injuries: form.injuries.trim() || "none",
+        workout_days: parseInt(form.workout_days, 10),
+        fitness_goal: form.fitness_goal,
+        fitness_level: form.fitness_level,
+        dietary_restrictions: form.dietary_restrictions,
+      });
+
+      setIsSuccess(true);
+
+      // Redirect to profile after a short delay
+      setTimeout(() => {
         router.push("/profile");
       }, 1500);
-
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [callEnded, router]);
-
-  // setup event listeners for vapi
-  useEffect(() => {
-    const handleCallStart = () => {
-      console.log("Call started");
-      setConnecting(false);
-      setCallActive(true);
-      setCallEnded(false);
-    };
-
-    const handleCallEnd = () => {
-      console.log("Call ended");
-      setCallActive(false);
-      setConnecting(false);
-      setIsSpeaking(false);
-      setCallEnded(true);
-    };
-
-    const handleSpeechStart = () => {
-      console.log("AI started Speaking");
-      setIsSpeaking(true);
-    };
-
-    const handleSpeechEnd = () => {
-      console.log("AI stopped Speaking");
-      setIsSpeaking(false);
-    };
-    const handleMessage = (message: any) => {
-      if (message.type === "transcript" && message.transcriptType === "final") {
-        const newMessage = { content: message.transcript, role: message.role };
-        setMessages((prev) => [...prev, newMessage]);
-      }
-    };
-
-    const handleError = (error: any) => {
-      console.log("Vapi Error", error);
-      setConnecting(false);
-      setCallActive(false);
-    };
-
-    vapi
-      .on("call-start", handleCallStart)
-      .on("call-end", handleCallEnd)
-      .on("speech-start", handleSpeechStart)
-      .on("speech-end", handleSpeechEnd)
-      .on("message", handleMessage)
-      .on("error", handleError);
-
-    // cleanup event listeners on unmount
-    return () => {
-      vapi
-        .off("call-start", handleCallStart)
-        .off("call-end", handleCallEnd)
-        .off("speech-start", handleSpeechStart)
-        .off("speech-end", handleSpeechEnd)
-        .off("message", handleMessage)
-        .off("error", handleError);
-    };
-  }, []);
-
-  const toggleCall = async () => {
-    if (callActive) vapi.stop();
-    else {
-      try {
-        setConnecting(true);
-        setMessages([]);
-        setCallEnded(false);
-
-        const fullName = user?.firstName
-          ? `${user.firstName} ${user.lastName || ""}`.trim()
-          : "There";
-
-        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-          variableValues: {
-            full_name: fullName,
-            user_id: user?.id,
-          },
-        });
-      } catch (error) {
-        console.log("Failed to start call", error);
-        setConnecting(false);
-      }
+    } catch (err: any) {
+      console.error("Plan generation error:", err);
+      setError(
+        err?.message?.includes("Not authenticated")
+          ? "You must be signed in to generate a plan."
+          : "Plan generation failed. Please try again in a moment."
+      );
+      setIsGenerating(false);
     }
   };
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-screen text-foreground overflow-hidden  pb-6 pt-24">
-      <div className="container mx-auto px-4 h-full max-w-5xl">
-        {/* Title */}
+    <div className="flex flex-col min-h-screen text-foreground overflow-hidden pb-6 pt-24">
+      <div className="container mx-auto px-4 h-full max-w-3xl">
+
+        {/* Title — preserved from original */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold font-mono">
             <span>Generate Your </span>
             <span className="text-primary uppercase">Fitness Program</span>
           </h1>
           <p className="text-muted-foreground mt-2">
-            Have a voice conversation with our AI assistant to create your personalized plan
+            Fill in your details and our AI will create your personalized plan
           </p>
         </div>
 
-        {/* VIDEO CALL AREA */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* AI ASSISTANT CARD */}
-          <Card className="bg-card/90 backdrop-blur-sm border border-border overflow-hidden relative">
-            <div className="aspect-video flex flex-col items-center justify-center p-6 relative">
-              {/* AI VOICE ANIMATION */}
-              <div
-                className={`absolute inset-0 ${
-                  isSpeaking ? "opacity-30" : "opacity-0"
-                } transition-opacity duration-300`}
-              >
-                {/* Voice wave animation when speaking */}
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex justify-center items-center h-20">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`mx-1 h-16 w-1 bg-primary rounded-full ${
-                        isSpeaking ? "animate-sound-wave" : ""
-                      }`}
-                      style={{
-                        animationDelay: `${i * 0.1}s`,
-                        height: isSpeaking ? `${Math.random() * 50 + 20}%` : "5%",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
+        {/* Form Card */}
+        <Card className="bg-card/90 backdrop-blur-sm border border-border overflow-hidden relative mb-6">
+          <CornerElements />
 
-              {/* AI IMAGE */}
-              <div className="relative size-32 mb-4">
-                <div
-                  className={`absolute inset-0 bg-primary opacity-10 rounded-full blur-lg ${
-                    isSpeaking ? "animate-pulse" : ""
-                  }`}
-                />
-
-                <div className="relative w-full h-full rounded-full bg-card flex items-center justify-center border border-border overflow-hidden">
-                  <div className="absolute inset-0 bg-linear-to-b from-primary/10 to-secondary/10"></div>
-                  <img
-                    src="/ai-avatar.png"
-                    alt="AI Assistant"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-
-              <h2 className="text-xl font-bold text-foreground">AmanCode AI</h2>
-              <p className="text-sm text-muted-foreground mt-1">Fitness & Diet Coach</p>
-
-              {/* SPEAKING INDICATOR */}
-
-              <div
-                className={`mt-4 flex items-center gap-2 px-3 py-1 rounded-full bg-card border border-border ${
-                  isSpeaking ? "border-primary" : ""
-                }`}
-              >
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    isSpeaking ? "bg-primary animate-pulse" : "bg-muted"
-                  }`}
-                />
-
-                <span className="text-xs text-muted-foreground">
-                  {isSpeaking
-                    ? "Speaking..."
-                    : callActive
-                      ? "Listening..."
-                      : callEnded
-                        ? "Redirecting to profile..."
-                        : "Waiting..."}
-                </span>
-              </div>
+          {/* Card header bar */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background/40">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs font-mono text-primary">FITNESS_PROFILE</span>
             </div>
-          </Card>
-
-          {/* USER CARD */}
-          <Card className={`bg-card/90 backdrop-blur-sm border overflow-hidden relative`}>
-            <div className="aspect-video flex flex-col items-center justify-center p-6 relative">
-              {/* User Image */}
-              <div className="relative size-32 mb-4">
-                <img
-                  src={user?.imageUrl}
-                  alt="User"
-                  // ADD THIS "size-full" class to make it rounded on all images
-                  className="size-full object-cover rounded-full"
-                />
-              </div>
-
-              <h2 className="text-xl font-bold text-foreground">You</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {user ? (user.firstName + " " + (user.lastName || "")).trim() : "Guest"}
-              </p>
-
-              {/* User Ready Text */}
-              <div className={`mt-4 flex items-center gap-2 px-3 py-1 rounded-full bg-card border`}>
-                <div className={`w-2 h-2 rounded-full bg-muted`} />
-                <span className="text-xs text-muted-foreground">Ready</span>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* MESSAGE COINTER  */}
-        {messages.length > 0 && (
-          <div
-            ref={messageContainerRef}
-            className="w-full bg-card/90 backdrop-blur-sm border border-border rounded-xl p-4 mb-8 h-64 overflow-y-auto transition-all duration-300 scroll-smooth"
-          >
-            <div className="space-y-3">
-              {messages.map((msg, index) => (
-                <div key={index} className="message-item animate-fadeIn">
-                  <div className="font-semibold text-xs text-muted-foreground mb-1">
-                    {msg.role === "assistant" ? "CodeFlex AI" : "You"}:
-                  </div>
-                  <p className="text-foreground">{msg.content}</p>
-                </div>
-              ))}
-
-              {callEnded && (
-                <div className="message-item animate-fadeIn">
-                  <div className="font-semibold text-xs text-primary mb-1">System:</div>
-                  <p className="text-foreground">
-                    Your fitness program has been created! Redirecting to your profile...
-                  </p>
-                </div>
-              )}
-            </div>
+            <span className="text-xs font-mono text-muted-foreground">
+              {user ? (user.firstName ?? "USER") + ".input" : "USER.input"}
+            </span>
           </div>
-        )}
 
-        {/* CALL CONTROLS */}
-        <div className="w-full flex justify-center gap-4">
-          <Button
-            className={`w-40 text-xl rounded-3xl ${
-              callActive
-                ? "bg-destructive hover:bg-destructive/90"
-                : callEnded
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-primary hover:bg-primary/90"
-            } text-white relative`}
-            onClick={toggleCall}
-            disabled={connecting || callEnded}
-          >
-            {connecting && (
-              <span className="absolute inset-0 rounded-full animate-ping bg-primary/50 opacity-75"></span>
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+
+            {/* Row 1: Age + Height */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Age <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="age"
+                  value={form.age}
+                  onChange={handleChange}
+                  min={10}
+                  max={100}
+                  placeholder="e.g. 25"
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Height <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="height"
+                  value={form.height}
+                  onChange={handleChange}
+                  placeholder="e.g. 175 cm or 5'9&quot;"
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                />
+              </div>
+            </div>
+
+            {/* Row 2: Weight + Workout Days */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Weight <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="weight"
+                  value={form.weight}
+                  onChange={handleChange}
+                  placeholder="e.g. 70 kg or 154 lbs"
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Workout Days / Week <span className="text-primary">*</span>
+                </label>
+                <select
+                  name="workout_days"
+                  value={form.workout_days}
+                  onChange={handleChange}
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                >
+                  {WORKOUT_DAYS.map((d) => (
+                    <option key={d} value={d}>
+                      {d} day{d !== 1 ? "s" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Row 3: Fitness Goal + Fitness Level */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Fitness Goal <span className="text-primary">*</span>
+                </label>
+                <select
+                  name="fitness_goal"
+                  value={form.fitness_goal}
+                  onChange={handleChange}
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                >
+                  <option value="">Select goal...</option>
+                  {FITNESS_GOALS.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Fitness Level <span className="text-primary">*</span>
+                </label>
+                <select
+                  name="fitness_level"
+                  value={form.fitness_level}
+                  onChange={handleChange}
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                >
+                  <option value="">Select level...</option>
+                  {FITNESS_LEVELS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Row 4: Dietary Restrictions */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                Dietary Restrictions <span className="text-primary">*</span>
+              </label>
+              <select
+                name="dietary_restrictions"
+                value={form.dietary_restrictions}
+                onChange={handleChange}
+                className={fieldClass}
+                disabled={isGenerating || isSuccess}
+              >
+                {DIETARY_OPTIONS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Row 5: Injuries */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                Injuries / Physical Limitations{" "}
+                <span className="text-muted-foreground/60 normal-case">(optional)</span>
+              </label>
+              <input
+                type="text"
+                name="injuries"
+                value={form.injuries}
+                onChange={handleChange}
+                placeholder='e.g. knee pain, lower back issues — or leave blank for "none"'
+                className={fieldClass}
+                disabled={isGenerating || isSuccess}
+              />
+            </div>
+
+            {/* Error message */}
+            {error && (
+              <div className="flex items-start gap-2 px-4 py-3 rounded-md border border-destructive/40 bg-destructive/10 animate-fadeIn">
+                <span className="text-xs font-mono text-primary mt-0.5">!</span>
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
             )}
 
+            {/* Success message */}
+            {isSuccess && (
+              <div className="flex items-start gap-2 px-4 py-3 rounded-md border border-primary/40 bg-primary/10 animate-fadeIn">
+                <span className="text-xs font-mono text-primary mt-0.5">&gt;</span>
+                <p className="text-sm text-foreground">
+                  Your fitness program has been created! Redirecting to your profile...
+                </p>
+              </div>
+            )}
+          </form>
+        </Card>
+
+        {/* Generate Button */}
+        <div className="w-full flex justify-center">
+          <Button
+            type="submit"
+            form="fitness-form"
+            onClick={handleSubmit}
+            disabled={isGenerating || isSuccess}
+            className={`w-48 text-base rounded-3xl relative ${
+              isSuccess
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-primary hover:bg-primary/90"
+            } text-primary-foreground font-mono`}
+          >
+            {/* Ping animation while generating */}
+            {isGenerating && (
+              <span className="absolute inset-0 rounded-full animate-ping bg-primary/50 opacity-75" />
+            )}
             <span>
-              {callActive
-                ? "End Call"
-                : connecting
-                  ? "Connecting..."
-                  : callEnded
-                    ? "View Profile"
-                    : "Start Call"}
+              {isSuccess
+                ? "View Profile"
+                : isGenerating
+                  ? "Generating..."
+                  : "Generate Plan"}
             </span>
           </Button>
         </div>
+
+        {/* Subtle hint */}
+        {isGenerating && (
+          <p className="text-center text-xs text-muted-foreground mt-4 animate-fadeIn font-mono">
+            AI is building your personalized plan — this takes about 10–20 seconds...
+          </p>
+        )}
       </div>
     </div>
   );
 };
+
 export default GenerateProgramPage;
