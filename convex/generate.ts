@@ -132,6 +132,96 @@ function estimateTDEE(
   return { tdee, target, label };
 }
 
+// ─── AI Content Generation (Gemini with Retry & Groq Fallback) ────────────────
+
+async function generateJSONContent(
+  prompt: string,
+  apiKey: string,
+  groqKey?: string
+): Promise<string> {
+  const geminiModels = ["gemini-3.6-flash", "gemini-flash-latest"];
+  let lastError: any = null;
+
+  // 1. Try Gemini models first
+  if (apiKey) {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    for (const modelName of geminiModels) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const model = genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: {
+              temperature: 0.3,
+              topP: 0.9,
+              responseMimeType: "application/json",
+            },
+          });
+          const res = await model.generateContent(prompt);
+          const text = res.response.text();
+          if (text && text.trim().length > 0) {
+            return text;
+          }
+        } catch (err: any) {
+          lastError = err;
+          const msg = err instanceof Error ? err.message : String(err);
+          console.warn(
+            `[generateJSONContent] ${modelName} (attempt ${attempt}) warning: ${msg}`
+          );
+          if (
+            attempt === 1 &&
+            (msg.includes("503") ||
+              msg.includes("high demand") ||
+              msg.includes("429") ||
+              msg.includes("fetch failed"))
+          ) {
+            await new Promise((r) => setTimeout(r, 1000));
+          } else {
+            break; // Try next model
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Fallback to Groq if Gemini is temporarily unavailable
+  if (groqKey) {
+    console.log(
+      `[generateJSONContent] Gemini unavailable, falling back to Groq (openai/gpt-oss-120b)...`
+    );
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${groqKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-120b",
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" },
+          temperature: 0.3,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          return content;
+        }
+      }
+    } catch (groqErr: any) {
+      console.error(`[generateJSONContent] Groq fallback failed:`, groqErr);
+    }
+  }
+
+  throw new Error(
+    lastError instanceof Error
+      ? lastError.message
+      : "AI service temporarily unavailable. Please try again in a moment."
+  );
+}
+
 // ─── Main generation action ───────────────────────────────────────────────────
 
 export const generateFitnessPlan = action({
@@ -146,126 +236,133 @@ export const generateFitnessPlan = action({
     dietary_restrictions: v.string(),
   },
   handler: async (ctx, args): Promise<{ success: boolean; planId: string }> => {
-    // ── Auth: get the authenticated user's Clerk ID ────────────────────────
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated. Please sign in before generating a plan.");
-    }
-    // identity.subject is the Clerk user ID (e.g. "user_xxxx")
-    const userId = identity.subject;
+    let currentStep = "Step 1: Authenticate User";
+    try {
+      // ── Auth: get the authenticated user's Clerk ID ────────────────────────
+      currentStep = "Step 1: Authenticate User";
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        throw new Error("Not authenticated. Please sign in before generating a plan.");
+      }
+      // identity.subject is the Clerk user ID (e.g. "user_xxxx")
+      const userId = identity.subject;
+      console.log(`[generateFitnessPlan - Step 1: Auth] Verified user: ${userId}`);
 
-    const { age, height, weight, injuries, workout_days, fitness_goal, fitness_level, dietary_restrictions } = args;
+      currentStep = "Step 2: Validate Input Data";
+      const { age, height, weight, injuries, workout_days, fitness_goal, fitness_level, dietary_restrictions } = args;
 
-    const numDays = workout_days;
+      const numDays = workout_days;
 
-    console.log(
-      `[generateFitnessPlan] user=${userId} | goal=${fitness_goal} | level=${fitness_level} | days=${numDays} | injuries=${injuries} | diet=${dietary_restrictions}`
-    );
+      console.log(
+        `[generateFitnessPlan - Step 2: Input] days=${numDays}, goal=${fitness_goal}, level=${fitness_level}, injuries=${injuries || "none"}, diet=${dietary_restrictions || "none"}`
+      );
 
-    // ── Build ordered day list ──────────────────────────────────────────────
-    const ALL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const selectedDays = ALL_DAYS.slice(0, numDays);
-    const dayListStr = selectedDays.join(", ");
+      // ── Build ordered day list ──────────────────────────────────────────────
+      const ALL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const selectedDays = ALL_DAYS.slice(0, numDays);
+      const dayListStr = selectedDays.join(", ");
 
-    // ── Fitness level guidance ─────────────────────────────────────────────
-    const levelGuidance: Record<string, string> = {
-      beginner:
-        "BEGINNER: Use compound movements with light-to-moderate weight. 2–3 sets per exercise, 10–15 reps. Focus on form. Avoid technical Olympic lifts. Keep total exercises per session to 4–5 max.",
-      intermediate:
-        "INTERMEDIATE: Mix compound and isolation movements. 3–4 sets per exercise, 8–12 reps. Can include barbell lifts. 5–7 exercises per session.",
-      advanced:
-        "ADVANCED: Include heavy compound lifts with progressive overload. 4–5 sets per exercise, 4–12 reps depending on the movement. Can include Olympic lifts. 6–8 exercises per session.",
-    };
-    const levelInstruction =
-      levelGuidance[fitness_level.toLowerCase().trim()] ??
-      `${fitness_level}: Design exercises appropriate for this fitness level with reasonable sets and reps.`;
+      // ── Fitness level guidance ─────────────────────────────────────────────
+      const levelGuidance: Record<string, string> = {
+        beginner:
+          "BEGINNER: Use compound movements with light-to-moderate weight. 2–3 sets per exercise, 10–15 reps. Focus on form. Avoid technical Olympic lifts. Keep total exercises per session to 4–5 max.",
+        intermediate:
+          "INTERMEDIATE: Mix compound and isolation movements. 3–4 sets per exercise, 8–12 reps. Can include barbell lifts. 5–7 exercises per session.",
+        advanced:
+          "ADVANCED: Include heavy compound lifts with progressive overload. 4–5 sets per exercise, 4–12 reps depending on the movement. Can include Olympic lifts. 6–8 exercises per session.",
+      };
+      const levelInstruction =
+        levelGuidance[fitness_level.toLowerCase().trim()] ??
+        `${fitness_level}: Design exercises appropriate for this fitness level with reasonable sets and reps.`;
 
-    // ── Goal guidance ──────────────────────────────────────────────────────
-    const goalGuidance: Record<string, string> = {
-      "weight loss":
-        "WEIGHT LOSS: Prioritise metabolic conditioning. Include supersets, circuits, compound movements. Short rest periods (30–60 seconds). Add cardio. Avoid heavy single-rep maxes.",
-      "fat loss":
-        "FAT LOSS: Metabolic training, circuits, short rest periods, compound movements, cardio included.",
-      "muscle gain":
-        "MUSCLE GAIN: Prioritise hypertrophy. Use body-part or push-pull-legs split. Emphasise progressive overload on compound lifts. Rest 60–90 seconds. Include isolation work. No pure cardio sessions.",
-      "muscle building":
-        "MUSCLE BUILDING: Hypertrophy focus, body-part splits, compound + isolation, progressive overload.",
-      "general fitness":
-        "GENERAL FITNESS: Balance strength, cardio, and mobility. Mix resistance training with conditioning.",
-      endurance:
-        "ENDURANCE: Cardiovascular training. Long steady-state cardio, interval runs, high-rep circuit work. Light weights with 15–20 reps.",
-      strength:
-        "STRENGTH: Low-rep, high-weight compound lifts (deadlift, squat, bench, overhead press, row). 4–6 sets, 3–6 reps. Long rest periods (2–3 min). Minimal cardio.",
-      flexibility:
-        "FLEXIBILITY: Yoga flows, dynamic stretching, foam rolling, and light resistance training. Full range-of-motion movements.",
-    };
-    const goalKey = fitness_goal.toLowerCase().trim();
-    let goalInstruction = goalGuidance[goalKey];
-    if (!goalInstruction) {
-      const matchKey = Object.keys(goalGuidance).find((k) => goalKey.includes(k));
-      goalInstruction = matchKey
-        ? goalGuidance[matchKey]
-        : `${fitness_goal}: Design exercises that directly support this fitness objective.`;
-    }
+      // ── Goal guidance ──────────────────────────────────────────────────────
+      const goalGuidance: Record<string, string> = {
+        "weight loss":
+          "WEIGHT LOSS: Prioritise metabolic conditioning. Include supersets, circuits, compound movements. Short rest periods (30–60 seconds). Add cardio. Avoid heavy single-rep maxes.",
+        "fat loss":
+          "FAT LOSS: Metabolic training, circuits, short rest periods, compound movements, cardio included.",
+        "muscle gain":
+          "MUSCLE GAIN: Prioritise hypertrophy. Use body-part or push-pull-legs split. Emphasise progressive overload on compound lifts. Rest 60–90 seconds. Include isolation work. No pure cardio sessions.",
+        "muscle building":
+          "MUSCLE BUILDING: Hypertrophy focus, body-part splits, compound + isolation, progressive overload.",
+        "general fitness":
+          "GENERAL FITNESS: Balance strength, cardio, and mobility. Mix resistance training with conditioning.",
+        endurance:
+          "ENDURANCE: Cardiovascular training. Long steady-state cardio, interval runs, high-rep circuit work. Light weights with 15–20 reps.",
+        strength:
+          "STRENGTH: Low-rep, high-weight compound lifts (deadlift, squat, bench, overhead press, row). 4–6 sets, 3–6 reps. Long rest periods (2–3 min). Minimal cardio.",
+        flexibility:
+          "FLEXIBILITY: Yoga flows, dynamic stretching, foam rolling, and light resistance training. Full range-of-motion movements.",
+      };
+      const goalKey = fitness_goal.toLowerCase().trim();
+      let goalInstruction = goalGuidance[goalKey];
+      if (!goalInstruction) {
+        const matchKey = Object.keys(goalGuidance).find((k) => goalKey.includes(k));
+        goalInstruction = matchKey
+          ? goalGuidance[matchKey]
+          : `${fitness_goal}: Design exercises that directly support this fitness objective.`;
+      }
 
-    // ── Injury guidance ────────────────────────────────────────────────────
-    const noInjury =
-      !injuries ||
-      injuries.trim() === "" ||
-      ["none", "no injuries", "n/a", "nil", "-"].includes(injuries.toLowerCase().trim());
+      // ── Injury guidance ────────────────────────────────────────────────────
+      const noInjury =
+        !injuries ||
+        injuries.trim() === "" ||
+        ["none", "no injuries", "n/a", "nil", "-"].includes(injuries.toLowerCase().trim());
 
-    const injuryInstruction = noInjury
-      ? "No injuries or limitations — full exercise selection is available."
-      : `INJURY/LIMITATION: "${injuries}". Avoid exercises that aggravate this condition and choose safe alternatives. ` +
-        `Knee issues → avoid deep squats, use leg press or step-ups. ` +
-        `Lower back → avoid heavy deadlifts, use Romanian deadlifts or cable pull-throughs. ` +
-        `Shoulder → avoid overhead pressing, use lateral raises or cable work. ` +
-        `Wrist → avoid barbell wrist-load exercises, prefer dumbbells or machines.`;
+      const injuryInstruction = noInjury
+        ? "No injuries or limitations — full exercise selection is available."
+        : `INJURY/LIMITATION: "${injuries}". Avoid exercises that aggravate this condition and choose safe alternatives. ` +
+          `Knee issues → avoid deep squats, use leg press or step-ups. ` +
+          `Lower back → avoid heavy deadlifts, use Romanian deadlifts or cable pull-throughs. ` +
+          `Shoulder → avoid overhead pressing, use lateral raises or cable work. ` +
+          `Wrist → avoid barbell wrist-load exercises, prefer dumbbells or machines.`;
 
-    // ── TDEE estimate for diet ─────────────────────────────────────────────
-    let weightKg = 70, heightCm = 170, ageNum = 25;
-    const weightMatch = String(weight).match(/([\d.]+)/);
-    if (weightMatch) {
-      const raw = parseFloat(weightMatch[1]);
-      weightKg = String(weight).toLowerCase().includes("lb") ? Math.round(raw / 2.205) : raw;
-    }
-    const heightMatch = String(height).match(/([\d.]+)/);
-    if (heightMatch) {
-      const raw = parseFloat(heightMatch[1]);
-      heightCm = raw < 9 ? Math.round(raw * 30.48) : raw < 100 ? Math.round(raw * 30.48) : raw;
-    }
-    const ageMatch = String(age).match(/(\d+)/);
-    if (ageMatch) ageNum = parseInt(ageMatch[1], 10);
+      // ── TDEE estimate for diet ─────────────────────────────────────────────
+      let weightKg = 70, heightCm = 170, ageNum = 25;
+      const weightMatch = String(weight).match(/([\d.]+)/);
+      if (weightMatch) {
+        const raw = parseFloat(weightMatch[1]);
+        weightKg = String(weight).toLowerCase().includes("lb") ? Math.round(raw / 2.205) : raw;
+      }
+      const heightMatch = String(height).match(/([\d.]+)/);
+      if (heightMatch) {
+        const raw = parseFloat(heightMatch[1]);
+        heightCm = raw < 9 ? Math.round(raw * 30.48) : raw < 100 ? Math.round(raw * 30.48) : raw;
+      }
+      const ageMatch = String(age).match(/(\d+)/);
+      if (ageMatch) ageNum = parseInt(ageMatch[1], 10);
 
-    const tdeeData = estimateTDEE(weightKg, heightCm, ageNum, fitness_goal);
+      const tdeeData = estimateTDEE(weightKg, heightCm, ageNum, fitness_goal);
 
-    // ── Dietary restriction instruction ────────────────────────────────────
-    const noDietRestriction =
-      !dietary_restrictions ||
-      ["none", "no restrictions", "n/a", "-"].includes(dietary_restrictions.toLowerCase().trim());
+      // ── Dietary restriction instruction ────────────────────────────────────
+      const noDietRestriction =
+        !dietary_restrictions ||
+        ["none", "no restrictions", "n/a", "-"].includes(dietary_restrictions.toLowerCase().trim());
 
-    const dietRestrictionInstruction = noDietRestriction
-      ? "No dietary restrictions — all foods are permitted."
-      : `DIETARY RESTRICTIONS: "${dietary_restrictions}". Strictly follow these. ` +
-        `Vegetarian → no meat, no fish, no seafood. ` +
-        `Vegan → no meat, fish, dairy, eggs, honey. ` +
-        `Lactose intolerant → no milk, cheese, yogurt, butter, cream. ` +
-        `Gluten-free → no wheat, barley, rye, regular bread or pasta. ` +
-        `Apply to EVERY meal.`;
+      const dietRestrictionInstruction = noDietRestriction
+        ? "No dietary restrictions — all foods are permitted."
+        : `DIETARY RESTRICTIONS: "${dietary_restrictions}". Strictly follow these. ` +
+          `Vegetarian → no meat, no fish, no seafood. ` +
+          `Vegan → no meat, fish, dairy, eggs, honey. ` +
+          `Lactose intolerant → no milk, cheese, yogurt, butter, cream. ` +
+          `Gluten-free → no wheat, barley, rye, regular bread or pasta. ` +
+          `Apply to EVERY meal.`;
 
-    // ── Gemini model ───────────────────────────────────────────────────────
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: {
-        temperature: 0.3,
-        topP: 0.9,
-        responseMimeType: "application/json",
-      },
-    });
+      // ── Validate API Keys ──────────────────────────────────────────────────
+      currentStep = "Step 3: Validate API Keys";
+      const rawGeminiKey = process.env.GEMINI_API_KEY || "";
+      const apiKey = rawGeminiKey.split(/[\r\n]+/)[0]?.trim();
 
-    // ── Workout prompt ─────────────────────────────────────────────────────
-    const workoutPrompt = `You are an expert certified personal trainer. Create a highly personalised weekly workout plan.
+      const rawGroqKey = process.env.GROQ_API_KEY || "";
+      const groqKey = rawGroqKey.split(/[\r\n]+/)[0]?.trim();
+
+      if (!apiKey && !groqKey) {
+        throw new Error("No AI API keys configured in Convex environment.");
+      }
+      console.log(`[generateFitnessPlan - Step 3: Keys] Validated keys: Gemini=${!!apiKey}, Groq=${!!groqKey}`);
+
+      // ── Workout prompt ─────────────────────────────────────────────────────
+      const workoutPrompt = `You are an expert certified personal trainer. Create a highly personalised weekly workout plan.
 
 USER PROFILE:
 - Age: ${age}
@@ -311,8 +408,8 @@ Return this EXACT JSON structure:
   ]
 }`;
 
-    // ── Diet prompt ────────────────────────────────────────────────────────
-    const dietPrompt = `You are an expert registered dietitian. Create a highly personalised daily meal plan.
+      // ── Diet prompt ────────────────────────────────────────────────────────
+      const dietPrompt = `You are an expert registered dietitian. Create a highly personalised daily meal plan.
 
 USER PROFILE:
 - Age: ${age}
@@ -357,55 +454,64 @@ Return this EXACT JSON structure:
   ]
 }`;
 
-    // ── Parallel generation ────────────────────────────────────────────────
-    console.log(`[generateFitnessPlan] Running parallel Gemini calls for user=${userId}`);
+      // ── Parallel generation ────────────────────────────────────────────────
+      currentStep = "Step 4: Request AI Plans (Parallel)";
+      console.log(`[generateFitnessPlan - Step 4: AI] Requesting workout and diet plans in parallel...`);
 
-    const [workoutResult, dietResult] = await Promise.all([
-      model.generateContent(workoutPrompt),
-      model.generateContent(dietPrompt),
-    ]);
+      const [workoutText, dietText] = await Promise.all([
+        generateJSONContent(workoutPrompt, apiKey, groqKey),
+        generateJSONContent(dietPrompt, apiKey, groqKey),
+      ]);
+      console.log(`[generateFitnessPlan - Step 4: AI] Responses received successfully.`);
 
-    // ── Parse workout ──────────────────────────────────────────────────────
-    let workoutplan: any;
-    try {
-      workoutplan = JSON.parse(workoutResult.response.text());
-    } catch {
-      throw new Error("Gemini returned invalid JSON for the workout plan");
+      // ── Parse workout ──────────────────────────────────────────────────────
+      currentStep = "Step 5: Parse and Validate Plans";
+      let workoutplan: any;
+      try {
+        workoutplan = JSON.parse(workoutText);
+      } catch {
+        throw new Error("AI returned invalid JSON for the workout plan");
+      }
+      try {
+        workoutplan = validateWorkoutplan(workoutplan, numDays);
+      } catch (e) {
+        throw new Error(`Workout validation failed: ${e instanceof Error ? e.message : String(e)}`);
+      }
+
+      // ── Parse diet ────────────────────────────────────────────────────────
+      let dietplan: any;
+      try {
+        dietplan = JSON.parse(dietText);
+      } catch {
+        throw new Error("AI returned invalid JSON for the diet plan");
+      }
+      try {
+        dietplan = validateDietplan(dietplan);
+      } catch (e) {
+        throw new Error(`Diet validation failed: ${e instanceof Error ? e.message : String(e)}`);
+      }
+
+      console.log(
+        `[generateFitnessPlan - Step 5: Validation] Plans validated. Workout: ${workoutplan.schedule.length} days, Diet: ${dietplan.dailyCalories} kcal, ${dietplan.meals.length} meals`
+      );
+
+      // ── Save to Convex ─────────────────────────────────────────────────────
+      currentStep = "Step 6: Save Plan to Database";
+      console.log(`[generateFitnessPlan - Step 6: Database] Saving active plan to Convex db...`);
+      const planId: string = await ctx.runMutation(api.plans.createplan, {
+        userId,
+        dietplan,
+        isActive: true,
+        workoutplan,
+        name: `${fitness_goal} plan - ${new Date().toLocaleDateString()}`,
+      });
+
+      console.log(`[generateFitnessPlan - Success] Plan saved successfully with ID: ${planId}`);
+
+      return { success: true, planId };
+    } catch (err: any) {
+      console.error(`[generateFitnessPlan Failed at ${currentStep}]:`, err instanceof Error ? err.message : String(err));
+      throw new Error(err instanceof Error ? err.message : "Plan generation failed");
     }
-    try {
-      workoutplan = validateWorkoutplan(workoutplan, numDays);
-    } catch (e) {
-      throw new Error(`Workout validation failed: ${e instanceof Error ? e.message : String(e)}`);
-    }
-
-    // ── Parse diet ────────────────────────────────────────────────────────
-    let dietplan: any;
-    try {
-      dietplan = JSON.parse(dietResult.response.text());
-    } catch {
-      throw new Error("Gemini returned invalid JSON for the diet plan");
-    }
-    try {
-      dietplan = validateDietplan(dietplan);
-    } catch (e) {
-      throw new Error(`Diet validation failed: ${e instanceof Error ? e.message : String(e)}`);
-    }
-
-    console.log(
-      `[generateFitnessPlan] Plans ready. Workout: ${workoutplan.schedule.length} days, Diet: ${dietplan.dailyCalories} kcal, ${dietplan.meals.length} meals`
-    );
-
-    // ── Save to Convex ─────────────────────────────────────────────────────
-    const planId: string = await ctx.runMutation(api.plans.createplan, {
-      userId,
-      dietplan,
-      isActive: true,
-      workoutplan,
-      name: `${fitness_goal} plan - ${new Date().toLocaleDateString()}`,
-    });
-
-    console.log(`[generateFitnessPlan] Saved. planId=${planId} user=${userId}`);
-
-    return { success: true, planId };
   },
 });
