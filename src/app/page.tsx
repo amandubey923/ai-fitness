@@ -34,25 +34,25 @@ const HomePage = () => {
               {/* SEPARATOR LINE */}
               <div className="h-px w-full bg-linear-to-r from-primary via-secondary to-primary opacity-50"></div>
 
-              <p className="text-base sm:text-lg text-muted-foreground w-full max-w-xl">
+              <p className="text-base sm:text-xl text-muted-foreground leading-relaxed w-full max-w-xl">
                 Get genuinely personalized workout routines and targeted diet plans designed specifically for your body and goals.
               </p>
 
               {/* STATS */}
               <div className="flex items-center gap-6 sm:gap-10 py-2 sm:py-2.5 font-mono">
                 <div className="flex flex-col">
-                  <div className="text-xl sm:text-2xl text-primary font-bold">500+</div>
-                  <div className="text-[11px] sm:text-xs uppercase tracking-wider text-muted-foreground">ACTIVE USERS</div>
+                  <div className="text-2xl sm:text-3xl text-primary font-bold font-mono tracking-tight">500+</div>
+                  <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">ACTIVE USERS</div>
                 </div>
                 <div className="h-10 sm:h-12 w-px bg-linear-to-b from-transparent via-border to-transparent"></div>
                 <div className="flex flex-col">
-                  <div className="text-xl sm:text-2xl text-primary font-bold">3min</div>
-                  <div className="text-[11px] sm:text-xs uppercase tracking-wider text-muted-foreground">GENERATION</div>
+                  <div className="text-2xl sm:text-3xl text-primary font-bold font-mono tracking-tight">3min</div>
+                  <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">GENERATION</div>
                 </div>
                 <div className="h-10 sm:h-12 w-px bg-linear-to-b from-transparent via-border to-transparent"></div>
                 <div className="flex flex-col">
-                  <div className="text-xl sm:text-2xl text-primary font-bold">100%</div>
-                  <div className="text-[11px] sm:text-xs uppercase tracking-wider text-muted-foreground">PERSONALIZED</div>
+                  <div className="text-2xl sm:text-3xl text-primary font-bold font-mono tracking-tight">100%</div>
+                  <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">PERSONALIZED</div>
                 </div>
               </div>
 

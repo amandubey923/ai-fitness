@@ -345,15 +345,15 @@ const ProfilePage = () => {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="size-2.5 rounded-full bg-primary animate-pulse" />
-                  <span className="font-mono text-xs font-semibold text-primary uppercase tracking-wider">
+                  <span className="font-mono text-xs font-bold text-primary uppercase tracking-wider">
                     MISSION DISPATCH • {todaySummary.todayName}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-muted-foreground">
+                  <span className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     CALORIE TARGET:
                   </span>
-                  <span className="font-mono text-xs font-bold text-foreground bg-secondary/15 px-2 py-0.5 rounded border border-border">
+                  <span className="font-mono text-xs sm:text-sm font-bold text-foreground bg-secondary/15 px-2 py-0.5 rounded border border-border">
                     {todaySummary.dailyCalories} KCAL
                   </span>
                 </div>
@@ -363,14 +363,14 @@ const ProfilePage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                   <div className="md:col-span-2 space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-foreground tracking-tight">
+                      <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
                         Today is a Workout Day:{" "}
                         <span className="text-primary">
                           {todaySummary.exerciseDay?.day}
                         </span>
                       </h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {todaySummary.totalRoutines} exercises targeted for today •
                       Est. duration ~{Math.max(30, todaySummary.totalRoutines * 8)}{" "}
                       mins • {todaySummary.mealsCount} structured meals.
@@ -391,7 +391,7 @@ const ProfilePage = () => {
                           }}
                         />
                       </div>
-                      <span className="font-mono text-xs text-primary font-medium">
+                      <span className="font-mono text-xs font-semibold text-primary">
                         {todaySummary.completedToday}/{todaySummary.totalRoutines}{" "}
                         Done
                       </span>
@@ -405,7 +405,7 @@ const ProfilePage = () => {
                         const el = document.getElementById("plan-tabs-section");
                         el?.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className="h-9 px-4 text-xs font-mono bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+                      className="h-9 px-4 text-xs sm:text-sm font-mono bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
                     >
                       <Activity className="size-3.5 mr-1.5" /> Start Workout
                     </Button>
@@ -415,21 +415,21 @@ const ProfilePage = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono text-[11px] font-semibold">
+                      <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono text-xs font-semibold tracking-wider">
                         RECOVERY DAY
                       </span>
-                      <h3 className="text-base font-bold text-foreground">
+                      <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
                         Rest & Muscle Regeneration
                       </h3>
                     </div>
-                    <p className="text-xs text-muted-foreground max-w-2xl">
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
                       No heavy lifting scheduled today. Prioritize hydration, hit
                       your {todaySummary.dailyCalories} kcal target, and rest for
                       optimal muscle recovery.
                     </p>
                   </div>
                   {todaySummary.nextDay && (
-                    <div className="text-xs font-mono text-muted-foreground bg-muted/30 px-3 py-1.5 rounded border border-border">
+                    <div className="text-xs sm:text-sm font-mono text-muted-foreground bg-muted/30 px-3 py-1.5 rounded border border-border">
                       NEXT SESSION:{" "}
                       <span className="text-primary font-semibold">
                         {todaySummary.nextDay}
@@ -445,11 +445,11 @@ const ProfilePage = () => {
           <div className="relative backdrop-blur-sm border border-border bg-card/30 rounded-lg p-4 sm:p-4.5">
             <CornerElements />
             <div className="flex items-center justify-between mb-3.5">
-              <h2 className="text-base sm:text-lg font-bold tracking-tight">
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight">
                 <span className="text-primary">Your</span>{" "}
                 <span className="text-foreground">Fitness Plans</span>
               </h2>
-              <div className="font-mono text-xs text-muted-foreground">
+              <div className="font-mono text-xs font-semibold text-muted-foreground">
                 TOTAL: {allPlans.length}
               </div>
             </div>
@@ -460,7 +460,7 @@ const ProfilePage = () => {
                   key={plan._id}
                   onClick={() => setSelectedPlanId(plan._id)}
                   size="sm"
-                  className={`h-8.5 px-3 text-xs font-mono text-foreground border transition-all ${
+                  className={`h-8.5 px-3 text-xs sm:text-sm font-mono text-foreground border transition-all ${
                     selectedPlanId === plan._id ||
                     (!selectedPlanId && plan.isActive)
                       ? "bg-primary/20 text-primary border-primary font-semibold shadow-xs"
@@ -469,7 +469,7 @@ const ProfilePage = () => {
                 >
                   {plan.name}
                   {plan.isActive && (
-                    <span className="ml-2 bg-green-500/20 text-green-500 text-[10px] px-1.5 py-0.2 rounded font-mono font-medium">
+                    <span className="ml-2 bg-green-500/20 text-green-500 text-xs px-1.5 py-0.2 rounded font-mono font-semibold">
                       ACTIVE
                     </span>
                   )}
@@ -490,7 +490,7 @@ const ProfilePage = () => {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-border/60">
                 <div className="flex items-center gap-2">
                   <div className="size-2 rounded-full bg-primary animate-pulse" />
-                  <h3 className="text-base sm:text-lg font-bold font-mono">
+                  <h3 className="text-lg sm:text-xl font-bold font-mono tracking-tight">
                     PLAN: <span className="text-primary">{currentPlan.name}</span>
                   </h3>
                 </div>
@@ -500,7 +500,7 @@ const ProfilePage = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setIsModifyOpen(!isModifyOpen)}
-                    className="h-8 px-3 text-xs font-mono border-primary/40 text-primary hover:bg-primary/10 transition-colors"
+                    className="h-8 px-3 text-xs sm:text-sm font-mono font-medium border-primary/40 text-primary hover:bg-primary/10 transition-colors"
                   >
                     <SlidersHorizontal className="size-3.5 mr-1.5" />
                     {isModifyOpen ? "Close Modify" : "Modify Plan"}
@@ -510,7 +510,7 @@ const ProfilePage = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-2.5 text-xs font-mono text-muted-foreground hover:text-foreground"
+                      className="h-8 px-2.5 text-xs sm:text-sm font-mono text-muted-foreground hover:text-foreground"
                     >
                       <Sparkles className="size-3 mr-1 text-primary" />
                       New Plan
@@ -525,18 +525,18 @@ const ProfilePage = () => {
                   <div className="flex items-center justify-between pb-2 border-b border-border">
                     <div className="flex items-center gap-2">
                       <Sparkles className="size-4 text-primary" />
-                      <span className="font-mono text-xs font-bold uppercase text-foreground">
+                      <span className="font-mono text-sm font-bold uppercase tracking-wider text-foreground">
                         FitPilot Controlled Plan Optimizer
                       </span>
                     </div>
-                    <span className="text-[11px] font-mono text-muted-foreground">
+                    <span className="text-xs font-mono text-muted-foreground">
                       AI Powered
                     </span>
                   </div>
 
                   {/* Preset quick buttons */}
                   <div>
-                    <span className="block text-xs font-mono text-muted-foreground mb-2">
+                    <span className="block text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                       QUICK PRESETS:
                     </span>
                     <div className="flex flex-wrap gap-2">
@@ -545,7 +545,7 @@ const ProfilePage = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => applyPreset("easier")}
-                        className="h-7 text-xs font-mono border-border hover:border-primary/60"
+                        className="h-7 text-xs font-mono font-medium border-border hover:border-primary/60"
                       >
                         ⚡ Make Easier
                       </Button>
@@ -554,7 +554,7 @@ const ProfilePage = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => applyPreset("harder")}
-                        className="h-7 text-xs font-mono border-border hover:border-primary/60"
+                        className="h-7 text-xs font-mono font-medium border-border hover:border-primary/60"
                       >
                         💥 Step Up (Harder)
                       </Button>
@@ -563,7 +563,7 @@ const ProfilePage = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => applyPreset("veg")}
-                        className="h-7 text-xs font-mono border-border hover:border-primary/60"
+                        className="h-7 text-xs font-mono font-medium border-border hover:border-primary/60"
                       >
                         🥗 Vegetarian Protein
                       </Button>
@@ -572,7 +572,7 @@ const ProfilePage = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => applyPreset("days4")}
-                        className="h-7 text-xs font-mono border-border hover:border-primary/60"
+                        className="h-7 text-xs font-mono font-medium border-border hover:border-primary/60"
                       >
                         📅 4 Days Split
                       </Button>
@@ -582,13 +582,13 @@ const ProfilePage = () => {
                   {/* Form controls */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1">
                     <div>
-                      <label className="block text-[11px] font-mono text-muted-foreground mb-1">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                         FITNESS GOAL
                       </label>
                       <select
                         value={modifyGoal}
                         onChange={(e) => setModifyGoal(e.target.value)}
-                        className="w-full h-8.5 text-xs bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
+                        className="w-full h-8.5 text-xs sm:text-sm bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
                       >
                         {FITNESS_GOALS.map((g) => (
                           <option key={g} value={g}>
@@ -599,13 +599,13 @@ const ProfilePage = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-muted-foreground mb-1">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                         WORKOUT DAYS / WK
                       </label>
                       <select
                         value={modifyDays}
                         onChange={(e) => setModifyDays(Number(e.target.value))}
-                        className="w-full h-8.5 text-xs bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
+                        className="w-full h-8.5 text-xs sm:text-sm bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
                       >
                         {[1, 2, 3, 4, 5, 6, 7].map((d) => (
                           <option key={d} value={d}>
@@ -616,13 +616,13 @@ const ProfilePage = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-muted-foreground mb-1">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                         INTENSITY LEVEL
                       </label>
                       <select
                         value={modifyLevel}
                         onChange={(e) => setModifyLevel(e.target.value)}
-                        className="w-full h-8.5 text-xs bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
+                        className="w-full h-8.5 text-xs sm:text-sm bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
                       >
                         {FITNESS_LEVELS.map((l) => (
                           <option key={l} value={l}>
@@ -633,13 +633,13 @@ const ProfilePage = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-muted-foreground mb-1">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                         DIETARY PREFERENCE
                       </label>
                       <select
                         value={modifyDiet}
                         onChange={(e) => setModifyDiet(e.target.value)}
-                        className="w-full h-8.5 text-xs bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
+                        className="w-full h-8.5 text-xs sm:text-sm bg-background border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
                       >
                         {DIETARY_OPTIONS.map((opt) => (
                           <option key={opt} value={opt}>
@@ -651,7 +651,7 @@ const ProfilePage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-mono text-muted-foreground mb-1">
+                    <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                       INJURY & FOCUS ADJUSTMENTS (OPTIONAL)
                     </label>
                     <input
@@ -659,7 +659,7 @@ const ProfilePage = () => {
                       value={modifyInjuries}
                       onChange={(e) => setModifyInjuries(e.target.value)}
                       placeholder="e.g. Lower back friendly, prefer dumbbells, more core..."
-                      className="w-full h-8.5 text-xs bg-background border border-border rounded px-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+                      className="w-full h-8.5 text-xs sm:text-sm bg-background border border-border rounded px-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
                     />
                   </div>
 
@@ -737,7 +737,7 @@ const ProfilePage = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border border-border bg-background/40">
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="size-4 text-primary shrink-0" />
-                      <span className="font-mono text-xs text-muted-foreground">
+                      <span className="font-mono text-xs sm:text-sm text-muted-foreground">
                         SCHEDULE:{" "}
                         <span className="text-foreground font-semibold">
                           {currentPlan.workoutplan.schedule.join(", ")}
@@ -747,10 +747,10 @@ const ProfilePage = () => {
 
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs text-muted-foreground">
+                        <span className="font-mono text-xs sm:text-sm text-muted-foreground">
                           PROGRESS:
                         </span>
-                        <span className="font-mono text-xs font-bold text-primary">
+                        <span className="font-mono text-xs sm:text-sm font-bold text-primary">
                           {totalCompletedCount}/{totalRoutinesInPlan} ({progressPercent}%)
                         </span>
                       </div>
@@ -800,12 +800,12 @@ const ProfilePage = () => {
                                   ) : (
                                     <Circle className="size-4 text-muted-foreground/60" />
                                   )}
-                                  <span className="text-primary font-bold text-sm">
+                                  <span className="text-primary font-bold text-sm sm:text-base tracking-tight">
                                     {exerciseDay.day}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-muted/50 text-muted-foreground border border-border">
+                                  <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-muted/50 text-muted-foreground border border-border">
                                     {dayCompleted}/{exerciseDay.routines.length}{" "}
                                     DONE
                                   </span>
@@ -821,7 +821,7 @@ const ProfilePage = () => {
                                     onClick={() =>
                                       resetDayCompletion(exerciseDay.day)
                                     }
-                                    className="text-[11px] font-mono text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+                                    className="text-xs font-mono text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
                                   >
                                     <RotateCcw className="size-3" />
                                     Reset Day Checks
@@ -881,7 +881,7 @@ const ProfilePage = () => {
 
                                             <div>
                                               <h4
-                                                className={`text-sm font-semibold transition-all ${
+                                                className={`text-sm sm:text-base font-semibold transition-all ${
                                                   isDone
                                                     ? "line-through text-muted-foreground"
                                                     : "text-foreground"
@@ -890,7 +890,7 @@ const ProfilePage = () => {
                                                 {activeName}
                                               </h4>
                                               {routine.description && (
-                                                <p className="text-xs text-muted-foreground mt-0.5">
+                                                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-0.5">
                                                   {routine.description}
                                                 </p>
                                               )}
@@ -900,12 +900,12 @@ const ProfilePage = () => {
                                           {/* Sets / Reps & FEATURE C Swap Button */}
                                           <div className="flex items-center gap-1.5 shrink-0">
                                             {activeSets !== undefined && (
-                                              <span className="px-2 py-0.5 rounded bg-primary/15 text-primary text-[11px] font-mono font-medium border border-primary/20">
+                                              <span className="px-2 py-0.5 rounded bg-primary/15 text-primary text-xs font-mono font-semibold tracking-wider border border-primary/20">
                                                 {activeSets} SETS
                                               </span>
                                             )}
                                             {activeReps !== undefined && (
-                                              <span className="px-2 py-0.5 rounded bg-secondary/20 text-secondary text-[11px] font-mono font-medium border border-secondary/20">
+                                              <span className="px-2 py-0.5 rounded bg-secondary/20 text-secondary text-xs font-mono font-semibold tracking-wider border border-secondary/20">
                                                 {activeReps} REPS
                                               </span>
                                             )}
@@ -923,7 +923,7 @@ const ProfilePage = () => {
                                                   exerciseDay.day
                                                 )
                                               }
-                                              className="h-7 px-2 text-[11px] font-mono text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                              className="h-7 px-2 text-xs font-mono font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                               title="Ask AI for an alternative exercise"
                                             >
                                               {isSwapping ? (
@@ -942,7 +942,7 @@ const ProfilePage = () => {
                                         {suggestion && (
                                           <div className="mt-3 p-3 rounded border border-primary/40 bg-primary/5 space-y-2 animate-in fade-in duration-150">
                                             <div className="flex items-center justify-between">
-                                              <div className="flex items-center gap-1.5 text-xs font-mono text-primary font-bold">
+                                              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-mono text-primary font-bold tracking-wide">
                                                 <Sparkles className="size-3.5" />
                                                 SUGGESTED ALTERNATIVE:
                                               </div>
@@ -957,15 +957,15 @@ const ProfilePage = () => {
                                               </button>
                                             </div>
 
-                                            <div className="text-xs font-semibold text-foreground">
+                                            <div className="text-sm font-bold text-foreground">
                                               {suggestion.name}{" "}
-                                              <span className="font-mono text-muted-foreground text-[11px]">
+                                              <span className="font-mono text-muted-foreground text-xs">
                                                 ({suggestion.sets} sets ×{" "}
                                                 {suggestion.reps} reps)
                                               </span>
                                             </div>
 
-                                            <p className="text-xs text-muted-foreground">
+                                            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                                               {suggestion.reason}
                                             </p>
 
@@ -976,7 +976,7 @@ const ProfilePage = () => {
                                                 onClick={() =>
                                                   handleAcceptSwap(routineKey)
                                                 }
-                                                className="h-6 px-2.5 text-[11px] font-mono bg-primary text-primary-foreground font-semibold"
+                                                className="h-6 px-2.5 text-xs font-mono bg-primary text-primary-foreground font-semibold"
                                               >
                                                 <Check className="size-3 mr-1" />
                                                 Accept Swap
@@ -988,7 +988,7 @@ const ProfilePage = () => {
                                                 onClick={() =>
                                                   handleDismissSwap(routineKey)
                                                 }
-                                                className="h-6 px-2 text-[11px] font-mono text-muted-foreground"
+                                                className="h-6 px-2 text-xs font-mono text-muted-foreground"
                                               >
                                                 Dismiss
                                               </Button>
@@ -1012,14 +1012,14 @@ const ProfilePage = () => {
                 <TabsContent value="diet" className="space-y-4 focus-visible:outline-none">
                   <div className="flex justify-between items-center p-3.5 rounded-lg border border-border bg-background/40">
                     <div>
-                      <span className="font-mono text-xs text-muted-foreground block">
+                      <span className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
                         DAILY NUTRITION TARGET
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         Personalized for your fitness objective
                       </span>
                     </div>
-                    <div className="font-mono text-xl font-bold text-primary">
+                    <div className="font-mono text-xl sm:text-2xl font-bold text-primary tracking-tight">
                       {currentPlan.dietplan.dailyCalories} KCAL
                     </div>
                   </div>
@@ -1033,11 +1033,11 @@ const ProfilePage = () => {
                         <div className="flex items-center justify-between pb-2 border-b border-border/60">
                           <div className="flex items-center gap-2">
                             <div className="size-2 rounded-full bg-primary" />
-                            <h4 className="font-mono text-sm font-bold text-primary">
+                            <h4 className="font-mono text-base font-bold text-primary tracking-tight">
                               {meal.name}
                             </h4>
                           </div>
-                          <span className="text-[11px] font-mono text-muted-foreground">
+                          <span className="text-xs font-mono text-muted-foreground">
                             {meal.foods.length} items
                           </span>
                         </div>
@@ -1046,12 +1046,12 @@ const ProfilePage = () => {
                           {meal.foods.map((food, foodIndex) => (
                             <li
                               key={foodIndex}
-                              className="flex items-start gap-2 text-xs text-muted-foreground"
+                              className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                             >
-                              <span className="text-[10px] text-primary font-mono mt-0.5">
+                              <span className="text-xs text-primary font-mono font-semibold mt-0.5">
                                 {String(foodIndex + 1).padStart(2, "0")}
                               </span>
-                              <span className="text-foreground/90">{food}</span>
+                              <span className="text-foreground/95 leading-normal">{food}</span>
                             </li>
                           ))}
                         </ul>

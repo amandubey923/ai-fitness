@@ -9,10 +9,10 @@ const NoFitnessplan = () => {
         <span className="text-primary font-mono text-lg font-bold">0</span>
       </div>
 
-      <h2 className="text-2xl font-bold mb-3 font-mono">
+      <h2 className="text-2xl sm:text-3xl font-bold mb-3 font-mono tracking-tight">
         <span className="text-primary">No</span> fitness plans yet
       </h2>
-      <p className="text-sm text-muted-foreground mb-6">
+      <p className="text-base text-muted-foreground leading-relaxed mb-6">
         Start by creating a personalized fitness and diet plan tailored to your specific goals and needs
       </p>
       <Button

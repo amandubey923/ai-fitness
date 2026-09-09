@@ -29,16 +29,16 @@ const ProfileHeader = ({ user }: { user: UserResource | null | undefined }) => {
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-1.5">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground truncate">
               {user.fullName}
             </h1>
             <div className="flex items-center bg-cyber-terminal-bg backdrop-blur-sm border border-border rounded px-2.5 py-0.5 w-fit">
               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse mr-1.5"></div>
-              <p className="text-[11px] font-mono text-primary font-medium">USER ACTIVE</p>
+              <p className="text-xs font-mono text-primary font-semibold tracking-wider">USER ACTIVE</p>
             </div>
           </div>
           <div className="h-px w-full bg-linear-to-r from-primary/40 via-secondary/40 to-primary/40 opacity-40 my-1.5"></div>
-          <p className="text-xs text-muted-foreground font-mono truncate">
+          <p className="text-xs sm:text-sm text-muted-foreground font-mono truncate">
             {user.primaryEmailAddress?.emailAddress}
           </p>
         </div>

@@ -108,11 +108,11 @@ export default function HelpPage() {
           </span>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-2 font-mono">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-2 font-mono">
           Help & <span className="text-primary">Support Center</span>
         </h1>
 
-        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
           Everything you need to navigate FitPilot AI: from generating your first workout and diet architecture to tracking daily completion, swapping exercises, and troubleshooting.
         </p>
 
@@ -124,7 +124,7 @@ export default function HelpPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search guides and FAQs..."
-            className="w-full h-8.5 pl-8 pr-3 text-xs bg-background/70 border border-border rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary font-mono transition-colors"
+            className="w-full h-8.5 pl-8 pr-3 text-xs sm:text-sm bg-background/70 border border-border rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary font-mono transition-colors"
           />
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function HelpPage() {
             key={t.key}
             type="button"
             onClick={() => setFilter(t.key as any)}
-            className={`px-3 py-1.5 rounded text-xs font-mono border transition-all ${
+            className={`px-3 py-1.5 rounded text-xs sm:text-sm font-mono border transition-all ${
               filter === t.key
                 ? "bg-primary/20 text-primary border-primary font-semibold"
                 : "bg-card/40 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
@@ -158,10 +158,10 @@ export default function HelpPage() {
         <CornerElements />
 
         <div className="flex items-center justify-between mb-3 pb-2 border-b border-border/70">
-          <span className="font-mono text-xs font-bold text-foreground uppercase">
+          <span className="font-mono text-sm font-bold text-foreground uppercase tracking-wide">
             DOCUMENTATION ARCHIVE ({filteredFaqs.length})
           </span>
-          <span className="text-[11px] font-mono text-muted-foreground">CLICK TO EXPAND</span>
+          <span className="text-xs font-mono text-muted-foreground">CLICK TO EXPAND</span>
         </div>
 
         {filteredFaqs.length > 0 ? (
@@ -172,17 +172,17 @@ export default function HelpPage() {
                 value={faq.id}
                 className="border border-border/70 rounded-md bg-background/30 px-3.5 overflow-hidden"
               >
-                <AccordionTrigger className="py-2.5 hover:no-underline font-mono text-xs sm:text-sm text-left font-semibold text-foreground hover:text-primary">
+                <AccordionTrigger className="py-2.5 hover:no-underline font-mono text-sm sm:text-base text-left font-semibold text-foreground hover:text-primary">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="pb-3 text-xs text-muted-foreground leading-relaxed">
+                <AccordionContent className="pb-3 text-sm text-muted-foreground leading-relaxed">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
         ) : (
-          <div className="py-8 text-center text-xs font-mono text-muted-foreground">
+          <div className="py-8 text-center text-xs sm:text-sm font-mono text-muted-foreground">
             No guides found matching your query. Try another keyword or browse all topics.
           </div>
         )}
@@ -192,11 +192,11 @@ export default function HelpPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="p-4 rounded-lg border border-border bg-card/40 flex items-center justify-between gap-3">
           <div className="space-y-0.5">
-            <h4 className="text-xs font-mono font-bold text-foreground">Need Direct Technical Help?</h4>
-            <p className="text-[11px] text-muted-foreground">Reach our support team via dispatch form.</p>
+            <h4 className="text-sm font-mono font-bold text-foreground">Need Direct Technical Help?</h4>
+            <p className="text-xs text-muted-foreground">Reach our support team via dispatch form.</p>
           </div>
           <Link href="/contact">
-            <Button size="sm" variant="outline" className="h-7.5 px-3 text-xs font-mono border-primary/40 text-primary hover:bg-primary/10">
+            <Button size="sm" variant="outline" className="h-7.5 px-3 text-xs sm:text-sm font-mono border-primary/40 text-primary hover:bg-primary/10">
               Contact Team
             </Button>
           </Link>
@@ -204,11 +204,11 @@ export default function HelpPage() {
 
         <div className="p-4 rounded-lg border border-border bg-card/40 flex items-center justify-between gap-3">
           <div className="space-y-0.5">
-            <h4 className="text-xs font-mono font-bold text-foreground">Ready to Build a Program?</h4>
-            <p className="text-[11px] text-muted-foreground">Start generation with AI or manual form.</p>
+            <h4 className="text-sm font-mono font-bold text-foreground">Ready to Build a Program?</h4>
+            <p className="text-xs text-muted-foreground">Start generation with AI or manual form.</p>
           </div>
           <Link href="/generate-program">
-            <Button size="sm" className="h-7.5 px-3 text-xs font-mono bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button size="sm" className="h-7.5 px-3 text-xs sm:text-sm font-mono bg-primary text-primary-foreground hover:bg-primary/90">
               Generate Now
             </Button>
           </Link>

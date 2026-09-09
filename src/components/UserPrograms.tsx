@@ -18,9 +18,9 @@ const UserPrograms = () => {
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background/60">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs text-primary font-semibold font-mono">PROGRAM_GALLERY</span>
+              <span className="text-xs text-primary font-bold font-mono tracking-wider">PROGRAM_GALLERY</span>
             </div>
-            <div className="text-[11px] text-muted-foreground font-mono">FEATURED_COMMUNITY_PLANS</div>
+            <div className="text-xs text-muted-foreground font-mono tracking-wider">FEATURED_COMMUNITY_PLANS</div>
           </div>
 
           <div className="p-4 sm:p-5 text-center">
@@ -28,7 +28,7 @@ const UserPrograms = () => {
               <span className="text-foreground">AI-Generated </span>
               <span className="text-primary">Programs</span>
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto">
               Real examples of personalized workout and diet architectures designed by FitPilot AI.
             </p>
           </div>
@@ -49,21 +49,21 @@ const UserPrograms = () => {
                     className="w-9 h-9 rounded-full object-cover border border-primary/30"
                   />
                   <div>
-                    <CardTitle className="text-sm font-semibold text-foreground">{program.first_name}</CardTitle>
-                    <p className="text-[11px] text-muted-foreground font-mono">
+                    <CardTitle className="text-base font-bold text-foreground tracking-tight">{program.first_name}</CardTitle>
+                    <p className="text-xs text-muted-foreground font-mono">
                       {program.age}y • {program.height} • {program.weight}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 mt-1">
-                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-mono border border-primary/20">
+                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/20">
                     {program.fitness_goal}
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-secondary/15 text-secondary-foreground text-[10px] font-mono border border-border">
+                  <span className="px-2 py-0.5 rounded bg-secondary/15 text-secondary-foreground text-xs font-mono font-medium border border-border">
                     {program.fitness_level}
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground text-[10px] font-mono">
+                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground text-xs font-mono font-medium">
                     {program.workout_days} days/wk
                   </span>
                 </div>
@@ -71,21 +71,21 @@ const UserPrograms = () => {
 
               <CardContent className="p-4 pt-1.5 space-y-2.5">
                 <div className="border-t border-border/70 pt-2.5">
-                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-primary mb-1">
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-semibold tracking-wider text-primary mb-1">
                     <Dumbbell className="size-3.5" />
                     <span>WORKOUT ROUTINE</span>
                   </div>
-                  <div className="text-xs text-muted-foreground line-clamp-2">
+                  <div className="text-sm text-muted-foreground leading-snug line-clamp-2">
                     {program.workout_plan.title}: {program.workout_plan.description}
                   </div>
                 </div>
 
                 <div className="border-t border-border/70 pt-2.5">
-                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-primary mb-1">
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-semibold tracking-wider text-primary mb-1">
                     <AppleIcon className="size-3.5" />
                     <span>NUTRITION TARGET</span>
                   </div>
-                  <div className="text-xs text-muted-foreground line-clamp-2">
+                  <div className="text-sm text-muted-foreground leading-snug line-clamp-2">
                     {program.diet_plan.title} ({program.diet_plan.daily_calories})
                   </div>
                 </div>
@@ -96,7 +96,7 @@ const UserPrograms = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full h-8 text-xs font-mono border-primary/40 text-primary hover:text-foreground hover:bg-primary/15"
+                    className="w-full h-8 text-xs sm:text-sm font-mono font-medium border-primary/40 text-primary hover:text-foreground hover:bg-primary/15"
                   >
                     Generate Similar Plan
                     <ChevronRight className="ml-1 size-3.5" />

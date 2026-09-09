@@ -170,11 +170,11 @@ const GenerateProgramPage = () => {
       <div className="container mx-auto px-4 h-full max-w-3xl">
         {/* Title */}
         <div className="text-center mb-3.5 sm:mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold font-mono tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold font-mono tracking-tight">
             <span>Generate Your </span>
             <span className="text-primary uppercase">Fitness Program</span>
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-1">
             Build your personalized workout & diet plan with FitPilot AI
           </p>
         </div>
@@ -185,7 +185,7 @@ const GenerateProgramPage = () => {
             <button
               type="button"
               onClick={() => setMode("ai")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-mono transition-all ${
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs sm:text-sm font-mono transition-all ${
                 mode === "ai"
                   ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
                   : "text-muted-foreground hover:text-foreground"
@@ -197,7 +197,7 @@ const GenerateProgramPage = () => {
             <button
               type="button"
               onClick={() => setMode("manual")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-mono transition-all ${
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs sm:text-sm font-mono transition-all ${
                 mode === "manual"
                   ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
                   : "text-muted-foreground hover:text-foreground"
@@ -246,9 +246,9 @@ const GenerateProgramPage = () => {
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background/40">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-xs font-mono text-primary">FITNESS_PROFILE</span>
+                <span className="text-xs sm:text-sm font-mono font-bold tracking-wider text-primary">FITNESS_PROFILE</span>
               </div>
-              <span className="text-xs font-mono text-muted-foreground">
+              <span className="text-xs font-mono font-medium tracking-wide text-muted-foreground">
                 {user ? (user.firstName ?? "USER") + ".input" : "USER.input"}
               </span>
             </div>
@@ -257,7 +257,7 @@ const GenerateProgramPage = () => {
               {/* Row 1: Age + Height */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                     Age <span className="text-primary">*</span>
                   </label>
                   <input
@@ -274,7 +274,7 @@ const GenerateProgramPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                     Height <span className="text-primary">*</span>
                   </label>
                   <input
@@ -292,7 +292,7 @@ const GenerateProgramPage = () => {
               {/* Row 2: Weight + Workout Days */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                     Weight <span className="text-primary">*</span>
                   </label>
                   <input
@@ -307,7 +307,7 @@ const GenerateProgramPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                     Workout Days / Week <span className="text-primary">*</span>
                   </label>
                   <select
@@ -329,7 +329,7 @@ const GenerateProgramPage = () => {
               {/* Row 3: Fitness Goal + Fitness Level */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                     Fitness Goal <span className="text-primary">*</span>
                   </label>
                   <select
@@ -349,7 +349,7 @@ const GenerateProgramPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                     Fitness Level <span className="text-primary">*</span>
                   </label>
                   <select
@@ -372,7 +372,7 @@ const GenerateProgramPage = () => {
               {/* Row 4: Dietary Restrictions & Injuries Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                     Dietary Restrictions <span className="text-primary">*</span>
                   </label>
                   <select
@@ -391,7 +391,7 @@ const GenerateProgramPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide truncate">
+                  <label className="block text-xs sm:text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wider truncate">
                     Injuries / Limitations{" "}
                     <span className="text-muted-foreground/60 normal-case">(optional)</span>
                   </label>
@@ -416,7 +416,7 @@ const GenerateProgramPage = () => {
             type="button"
             onClick={handleSubmit}
             disabled={isGenerating || isSuccess}
-            className={`h-10 px-7 text-xs sm:text-sm font-semibold rounded-full relative shadow-md ${
+            className={`h-10 px-7 text-sm sm:text-base font-semibold rounded-full relative shadow-md ${
               isSuccess
                 ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
                 : "bg-primary hover:bg-primary/90 shadow-primary/20"
@@ -438,7 +438,7 @@ const GenerateProgramPage = () => {
 
         {/* Subtle hint */}
         {isGenerating && (
-          <p className="text-center text-xs text-muted-foreground mt-4 animate-fadeIn font-mono">
+          <p className="text-center text-xs sm:text-sm text-muted-foreground mt-4 animate-fadeIn font-mono">
             AI is building your personalized plan — this takes about 10–20 seconds...
           </p>
         )}

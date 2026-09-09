@@ -382,7 +382,7 @@ export default function AIAssistant({
                   : "bg-green-500"
             }`}
           />
-          <span className="text-xs font-mono text-primary flex items-center gap-1.5">
+          <span className="text-xs sm:text-sm font-mono font-bold tracking-wider text-primary flex items-center gap-1.5">
             <FitPilotLogo size={14} />
             FITPILOT_AI_ASSISTANT
           </span>
@@ -403,60 +403,60 @@ export default function AIAssistant({
             )}
           </button>
 
-          <span className="text-xs font-mono text-muted-foreground">
+          <span className="text-xs font-mono font-medium tracking-wide text-muted-foreground">
             {completedFieldsCount}/7 Fields
           </span>
         </div>
       </div>
 
       {/* Live Extracted Fields Bar */}
-      <div className="px-4 py-2 bg-muted/30 border-b border-border text-[11px] font-mono flex flex-wrap gap-1.5 items-center">
-        <span className="text-muted-foreground text-[11px] uppercase tracking-wider">
+      <div className="px-4 py-2 bg-muted/30 border-b border-border text-xs font-mono flex flex-wrap gap-1.5 items-center">
+        <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
           Profile:
         </span>
         {form.age ? (
-          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             Age: {form.age}
           </span>
         ) : null}
         {form.height ? (
-          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             H: {form.height}
           </span>
         ) : null}
         {form.weight ? (
-          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             W: {form.weight}
           </span>
         ) : null}
         {form.workout_days ? (
-          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             Days: {form.workout_days}/wk
           </span>
         ) : null}
         {form.fitness_goal ? (
-          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             Goal: {form.fitness_goal}
           </span>
         ) : null}
         {form.fitness_level ? (
-          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             Lvl: {form.fitness_level}
           </span>
         ) : null}
         {form.dietary_restrictions ? (
-          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             Diet: {form.dietary_restrictions}
           </span>
         ) : null}
         {form.injuries && form.injuries !== "none" ? (
-          <span className="px-2 py-0.5 rounded bg-secondary/20 text-secondary-foreground border border-secondary/40">
+          <span className="px-2 py-0.5 rounded bg-secondary/20 text-secondary-foreground text-xs font-mono font-medium border border-secondary/40">
             Injuries: {form.injuries}
           </span>
         ) : null}
 
         {completedFieldsCount === 0 && (
-          <span className="text-muted-foreground text-xs italic">
+          <span className="text-muted-foreground text-xs sm:text-sm italic">
             Start speaking or typing to fill your profile...
           </span>
         )}
@@ -471,11 +471,11 @@ export default function AIAssistant({
               msg.role === "user" ? "items-end" : "items-start"
             }`}
           >
-            <span className="text-[11px] font-mono text-muted-foreground mb-1 px-1">
+            <span className="text-xs font-mono font-medium text-muted-foreground mb-1 px-1">
               {msg.role === "assistant" ? "FitPilot AI" : "You"}
             </span>
             <div
-              className={`max-w-[85%] rounded-lg px-3.5 py-2 text-xs sm:text-sm ${
+              className={`max-w-[85%] rounded-lg px-3.5 py-2 text-sm sm:text-base leading-relaxed ${
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground font-medium rounded-tr-xs"
                   : "bg-background/80 border border-border text-foreground rounded-tl-xs shadow-xs"
@@ -489,10 +489,10 @@ export default function AIAssistant({
         {/* Interim voice transcript bubble */}
         {interimText && (
           <div className="flex flex-col items-end animate-pulse">
-            <span className="text-[11px] font-mono text-muted-foreground mb-1 px-1">
+            <span className="text-xs font-mono font-medium text-muted-foreground mb-1 px-1">
               Listening...
             </span>
-            <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-sm bg-primary/30 text-foreground border border-primary/50 italic rounded-tr-xs">
+            <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-sm sm:text-base leading-relaxed bg-primary/30 text-foreground border border-primary/50 italic rounded-tr-xs">
               {interimText}...
             </div>
           </div>
@@ -500,7 +500,7 @@ export default function AIAssistant({
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="flex items-center gap-2 text-xs font-mono text-primary animate-pulse py-1">
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-mono font-medium text-primary animate-pulse py-1">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
             <span>AI is analyzing your fitness data...</span>
           </div>
@@ -514,7 +514,7 @@ export default function AIAssistant({
         <div className="mx-4 mb-2.5 p-2.5 rounded-lg border border-primary/40 bg-primary/10 flex items-center justify-between gap-2.5 animate-fadeIn">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-            <span className="text-xs text-foreground font-mono">
+            <span className="text-xs sm:text-sm text-foreground font-mono font-medium">
               All fitness parameters collected! Ready to generate.
             </span>
           </div>
@@ -523,7 +523,7 @@ export default function AIAssistant({
             variant="outline"
             size="sm"
             onClick={onSwitchToManual}
-            className="h-7 text-xs font-mono border-primary/50 hover:bg-primary/20 shrink-0"
+            className="h-7 text-xs sm:text-sm font-mono font-medium border-primary/50 hover:bg-primary/20 shrink-0"
           >
             <span>Review Form</span>
             <ArrowRight className="w-3 h-3 ml-1" />

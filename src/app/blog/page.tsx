@@ -179,31 +179,31 @@ export default function BlogPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono text-[10px] font-semibold border border-primary/20">
+                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono text-xs font-semibold border border-primary/20">
                   {article.category}
                 </span>
-                <span className="text-[11px] font-mono text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground">
                   {article.readTime}
                 </span>
               </div>
 
-              <h3 className="text-sm font-semibold text-foreground leading-snug line-clamp-2">
+              <h3 className="text-base font-bold text-foreground leading-snug line-clamp-2 tracking-tight">
                 {article.title}
               </h3>
 
-              <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+              <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                 {article.summary}
               </p>
             </div>
 
             <div className="pt-4 mt-2 border-t border-border/70 flex items-center justify-between">
-              <span className="text-[11px] font-mono text-muted-foreground">
+              <span className="text-xs font-mono text-muted-foreground">
                 {article.date}
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedArticle(article)}
-                className="text-xs font-mono text-primary hover:underline flex items-center gap-1 font-medium"
+                className="text-xs sm:text-sm font-mono text-primary hover:underline flex items-center gap-1 font-medium"
               >
                 Read Article <ArrowRight className="size-3" />
               </button>
@@ -220,7 +220,7 @@ export default function BlogPage() {
 
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-primary/15 text-primary text-[10px] font-mono font-semibold">
+                <span className="px-2 py-0.5 rounded bg-primary/15 text-primary text-xs font-mono font-semibold">
                   {selectedArticle.category}
                 </span>
                 <span className="text-xs font-mono text-muted-foreground">
@@ -236,17 +236,17 @@ export default function BlogPage() {
               </button>
             </div>
 
-            <h2 className="text-lg sm:text-xl font-bold font-mono text-foreground leading-tight">
+            <h2 className="text-xl sm:text-2xl font-bold font-mono text-foreground leading-tight">
               {selectedArticle.title}
             </h2>
 
             {/* Core Takeaway Banner */}
-            <div className="p-3 rounded bg-primary/10 border border-primary/30 text-xs text-foreground">
+            <div className="p-3 rounded bg-primary/10 border border-primary/30 text-sm text-foreground">
               <strong className="text-primary font-mono block mb-0.5">KEY TAKEAWAY:</strong>
               {selectedArticle.takeaway}
             </div>
 
-            <div className="space-y-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <div className="space-y-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
               {selectedArticle.content.map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
               ))}
@@ -254,7 +254,7 @@ export default function BlogPage() {
 
             <div className="pt-3 border-t border-border flex items-center justify-between">
               <Link href="/generate-program">
-                <Button size="sm" className="h-8 px-4 text-xs font-mono bg-primary text-primary-foreground font-semibold">
+                <Button size="sm" className="h-8 px-4 text-xs sm:text-sm font-mono bg-primary text-primary-foreground font-semibold">
                   <Sparkles className="size-3 mr-1.5" /> Generate Personalized Plan
                 </Button>
               </Link>
