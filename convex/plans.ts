@@ -13,8 +13,8 @@ export const createplan = mutation({
           routines: v.array(
             v.object({
               name: v.string(),
-              sets: v.number(),
-              reps: v.number(),
+              sets: v.optional(v.number()),
+              reps: v.optional(v.number()),
             })
           ),
         })
