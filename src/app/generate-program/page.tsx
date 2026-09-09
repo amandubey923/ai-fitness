@@ -39,6 +39,7 @@ const WORKOUT_DAYS = [1, 2, 3, 4, 5, 6, 7];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface FormState {
 export interface FormState {
   age: string;
   height: string;
@@ -164,10 +165,13 @@ const GenerateProgramPage = () => {
     }
   };
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col min-h-screen text-foreground overflow-hidden pb-6 pt-24">
       <div className="container mx-auto px-4 h-full max-w-3xl">
 
+        {/* Title — preserved from original */}
+        <div className="text-center mb-8">
         {/* Title */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold font-mono">
@@ -175,10 +179,14 @@ const GenerateProgramPage = () => {
             <span className="text-primary uppercase">Fitness Program</span>
           </h1>
           <p className="text-muted-foreground mt-2">
+            Fill in your details and our AI will create your personalized plan
             Choose how you want to build your personalized workout & diet plan
           </p>
         </div>
 
+        {/* Form Card */}
+        <Card className="bg-card/90 backdrop-blur-sm border border-border overflow-hidden relative mb-6">
+          <CornerElements />
         {/* Mode Selector Tabs */}
         <div className="flex justify-center mb-8">
           <div className="bg-card/90 border border-border rounded-full p-1 flex gap-2 backdrop-blur-sm shadow-md">
@@ -209,6 +217,11 @@ const GenerateProgramPage = () => {
           </div>
         </div>
 
+          {/* Card header bar */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background/40">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs font-mono text-primary">FITNESS_PROFILE</span>
         {/* OPTION 2: AI ASSISTANT VIEW */}
         {mode === "ai" && (
           <AIAssistant
@@ -234,9 +247,31 @@ const GenerateProgramPage = () => {
                 {user ? (user.firstName ?? "USER") + ".input" : "USER.input"}
               </span>
             </div>
+            <span className="text-xs font-mono text-muted-foreground">
+              {user ? (user.firstName ?? "USER") + ".input" : "USER.input"}
+            </span>
+          </div>
 
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
 
+            {/* Row 1: Age + Height */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Age <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="age"
+                  value={form.age}
+                  onChange={handleChange}
+                  min={10}
+                  max={100}
+                  placeholder="e.g. 25"
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                />
               {/* Row 1: Age + Height */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -272,6 +307,19 @@ const GenerateProgramPage = () => {
                 </div>
               </div>
 
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Height <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="height"
+                  value={form.height}
+                  onChange={handleChange}
+                  placeholder="e.g. 175 cm or 5'9&quot;"
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                />
               {/* Row 2: Weight + Workout Days */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -308,7 +356,23 @@ const GenerateProgramPage = () => {
                   </select>
                 </div>
               </div>
+            </div>
 
+            {/* Row 2: Weight + Workout Days */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Weight <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="weight"
+                  value={form.weight}
+                  onChange={handleChange}
+                  placeholder="e.g. 70 kg or 154 lbs"
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                />
               {/* Row 3: Fitness Goal + Fitness Level */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -355,29 +419,41 @@ const GenerateProgramPage = () => {
               {/* Row 4: Dietary Restrictions */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Workout Days / Week <span className="text-primary">*</span>
                   Dietary Restrictions <span className="text-primary">*</span>
                 </label>
                 <select
+                  name="workout_days"
+                  value={form.workout_days}
                   name="dietary_restrictions"
                   value={form.dietary_restrictions}
                   onChange={handleChange}
                   className={fieldClass}
                   disabled={isGenerating || isSuccess}
                 >
+                  {WORKOUT_DAYS.map((d) => (
                   {DIETARY_OPTIONS.map((d) => (
                     <option key={d} value={d}>
+                      {d} day{d !== 1 ? "s" : ""}
                       {d}
                     </option>
                   ))}
                 </select>
               </div>
+            </div>
 
+            {/* Row 3: Fitness Goal + Fitness Level */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Row 5: Injuries */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Fitness Goal <span className="text-primary">*</span>
                   Injuries / Physical Limitations{" "}
                   <span className="text-muted-foreground/60 normal-case">(optional)</span>
                 </label>
+                <select
+                  name="fitness_goal"
+                  value={form.fitness_goal}
                 <input
                   type="text"
                   name="injuries"
@@ -386,12 +462,40 @@ const GenerateProgramPage = () => {
                   placeholder='e.g. knee pain, lower back issues — or leave blank for "none"'
                   className={fieldClass}
                   disabled={isGenerating || isSuccess}
+                >
+                  <option value="">Select goal...</option>
+                  {FITNESS_GOALS.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
                 />
               </div>
             </form>
           </Card>
         )}
 
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                  Fitness Level <span className="text-primary">*</span>
+                </label>
+                <select
+                  name="fitness_level"
+                  value={form.fitness_level}
+                  onChange={handleChange}
+                  className={fieldClass}
+                  disabled={isGenerating || isSuccess}
+                >
+                  <option value="">Select level...</option>
+                  {FITNESS_LEVELS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
         {/* Global Error message */}
         {error && (
           <div className="mb-6 flex items-start gap-2 px-4 py-3 rounded-md border border-destructive/40 bg-destructive/10 animate-fadeIn">
@@ -400,6 +504,25 @@ const GenerateProgramPage = () => {
           </div>
         )}
 
+            {/* Row 4: Dietary Restrictions */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                Dietary Restrictions <span className="text-primary">*</span>
+              </label>
+              <select
+                name="dietary_restrictions"
+                value={form.dietary_restrictions}
+                onChange={handleChange}
+                className={fieldClass}
+                disabled={isGenerating || isSuccess}
+              >
+                {DIETARY_OPTIONS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
         {/* Success message */}
         {isSuccess && (
           <div className="mb-6 flex items-start gap-2 px-4 py-3 rounded-md border border-primary/40 bg-primary/10 animate-fadeIn">
@@ -410,9 +533,49 @@ const GenerateProgramPage = () => {
           </div>
         )}
 
+            {/* Row 5: Injuries */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                Injuries / Physical Limitations{" "}
+                <span className="text-muted-foreground/60 normal-case">(optional)</span>
+              </label>
+              <input
+                type="text"
+                name="injuries"
+                value={form.injuries}
+                onChange={handleChange}
+                placeholder='e.g. knee pain, lower back issues — or leave blank for "none"'
+                className={fieldClass}
+                disabled={isGenerating || isSuccess}
+              />
+            </div>
+
+            {/* Error message */}
+            {error && (
+              <div className="flex items-start gap-2 px-4 py-3 rounded-md border border-destructive/40 bg-destructive/10 animate-fadeIn">
+                <span className="text-xs font-mono text-primary mt-0.5">!</span>
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
+
+            {/* Success message */}
+            {isSuccess && (
+              <div className="flex items-start gap-2 px-4 py-3 rounded-md border border-primary/40 bg-primary/10 animate-fadeIn">
+                <span className="text-xs font-mono text-primary mt-0.5">&gt;</span>
+                <p className="text-sm text-foreground">
+                  Your fitness program has been created! Redirecting to your profile...
+                </p>
+              </div>
+            )}
+          </form>
+        </Card>
+
+        {/* Generate Button */}
         {/* Generate Button (Active for both modes, operating on the same form data) */}
         <div className="w-full flex justify-center">
           <Button
+            type="submit"
+            form="fitness-form"
             type="button"
             onClick={handleSubmit}
             disabled={isGenerating || isSuccess}
