@@ -44,7 +44,7 @@ export default function RootLayout({
             <div className="absolute inset-0 bg-[linear-gradient(var(--cyber-grid-color)_1px,transparent_1px),linear-gradient(90deg,var(--cyber-grid-color)_1px,transparent_1px)] bg-size-[20px_20px]"></div>
           </div>
 
-          <main className="pt-20 sm:pt-24 grow">{children}</main>
+          <main className="pt-16 sm:pt-18 grow">{children}</main>
           <Footer />
         </body>
       </html>

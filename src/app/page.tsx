@@ -7,14 +7,14 @@ import Link from "next/link";
 const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen text-foreground overflow-hidden">
-      <section className="relative z-10 py-12 sm:py-16 grow">
+      <section className="relative z-10 py-6 sm:py-10 grow">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative">
             {/* CORNER DECORATION */}
-            <div className="absolute -top-6 left-0 w-28 sm:w-36 h-28 sm:h-36 border-l-2 border-t-2 border-primary/30 pointer-events-none" />
+            <div className="absolute -top-6 left-0 w-20 sm:w-24 h-20 sm:h-24 border-l-2 border-t-2 border-primary/30 pointer-events-none" />
 
             {/* LEFT SIDE CONTENT */}
-            <div className="lg:col-span-7 space-y-5 sm:space-y-6 relative">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-5 relative">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
                 <div>
                   <span className="text-foreground">Transform</span>
@@ -39,7 +39,7 @@ const HomePage = () => {
               </p>
 
               {/* STATS */}
-              <div className="flex items-center gap-6 sm:gap-10 py-3 sm:py-4 font-mono">
+              <div className="flex items-center gap-6 sm:gap-10 py-2 sm:py-2.5 font-mono">
                 <div className="flex flex-col">
                   <div className="text-xl sm:text-2xl text-primary font-bold">500+</div>
                   <div className="text-[11px] sm:text-xs uppercase tracking-wider text-muted-foreground">ACTIVE USERS</div>
@@ -57,7 +57,7 @@ const HomePage = () => {
               </div>
 
               {/* BUTTON */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <Button
                   size="lg"
                   asChild

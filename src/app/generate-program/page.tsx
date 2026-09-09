@@ -166,21 +166,21 @@ const GenerateProgramPage = () => {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-screen text-foreground overflow-hidden pb-12 pt-20 sm:pt-24">
+    <div className="flex flex-col min-h-screen text-foreground overflow-hidden pb-10 pt-3 sm:pt-5">
       <div className="container mx-auto px-4 h-full max-w-3xl">
         {/* Title */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold font-mono tracking-tight">
+        <div className="text-center mb-3.5 sm:mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold font-mono tracking-tight">
             <span>Generate Your </span>
             <span className="text-primary uppercase">Fitness Program</span>
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-2">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Build your personalized workout & diet plan with FitPilot AI
           </p>
         </div>
 
         {/* Mode Selector Tabs */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-4 sm:mb-5">
           <div className="bg-card/90 border border-border rounded-full p-1 flex gap-2 backdrop-blur-sm shadow-md">
             <button
               type="button"
@@ -211,7 +211,7 @@ const GenerateProgramPage = () => {
 
         {/* Global Error message */}
         {error && (
-          <div className="mb-6 flex items-start gap-2 px-4 py-3 rounded-md border border-destructive/40 bg-destructive/10 animate-fadeIn">
+          <div className="mb-4 flex items-start gap-2 px-3.5 py-2.5 rounded-md border border-destructive/40 bg-destructive/10 animate-fadeIn text-xs">
             <span className="text-xs font-mono text-primary mt-0.5">!</span>
             <p className="text-sm text-destructive">{error}</p>
           </div>
@@ -219,7 +219,7 @@ const GenerateProgramPage = () => {
 
         {/* Success message */}
         {isSuccess && (
-          <div className="mb-6 flex items-start gap-2 px-4 py-3 rounded-md border border-primary/40 bg-primary/10 animate-fadeIn">
+          <div className="mb-4 flex items-start gap-2 px-3.5 py-2.5 rounded-md border border-primary/40 bg-primary/10 animate-fadeIn text-xs">
             <span className="text-xs font-mono text-primary mt-0.5">&gt;</span>
             <p className="text-sm text-foreground">
               Your fitness program has been created! Redirecting to your profile...
@@ -243,7 +243,7 @@ const GenerateProgramPage = () => {
             <CornerElements />
 
             {/* Card header bar */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background/40">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background/40">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 <span className="text-xs font-mono text-primary">FITNESS_PROFILE</span>
@@ -253,7 +253,7 @@ const GenerateProgramPage = () => {
               </span>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5 sm:space-y-6">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-3.5">
               {/* Row 1: Age + Height */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -369,53 +369,54 @@ const GenerateProgramPage = () => {
                 </div>
               </div>
 
-              {/* Row 4: Dietary Restrictions */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
-                  Dietary Restrictions <span className="text-primary">*</span>
-                </label>
-                <select
-                  name="dietary_restrictions"
-                  value={form.dietary_restrictions}
-                  onChange={handleChange}
-                  className={fieldClass}
-                  disabled={isGenerating || isSuccess}
-                >
-                  {DIETARY_OPTIONS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Row 4: Dietary Restrictions & Injuries Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                    Dietary Restrictions <span className="text-primary">*</span>
+                  </label>
+                  <select
+                    name="dietary_restrictions"
+                    value={form.dietary_restrictions}
+                    onChange={handleChange}
+                    className={fieldClass}
+                    disabled={isGenerating || isSuccess}
+                  >
+                    {DIETARY_OPTIONS.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Row 5: Injuries */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
-                  Injuries / Physical Limitations{" "}
-                  <span className="text-muted-foreground/60 normal-case">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  name="injuries"
-                  value={form.injuries}
-                  onChange={handleChange}
-                  placeholder='e.g. knee pain, lower back issues — or leave blank for "none"'
-                  className={fieldClass}
-                  disabled={isGenerating || isSuccess}
-                />
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide truncate">
+                    Injuries / Limitations{" "}
+                    <span className="text-muted-foreground/60 normal-case">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="injuries"
+                    value={form.injuries}
+                    onChange={handleChange}
+                    placeholder='e.g. knee pain, or leave blank'
+                    className={fieldClass}
+                    disabled={isGenerating || isSuccess}
+                  />
+                </div>
               </div>
             </form>
           </Card>
         )}
 
         {/* Generate Button (Active for both modes, operating on the same form data) */}
-        <div className="w-full flex justify-center mt-6">
+        <div className="w-full flex justify-center mt-4 sm:mt-5">
           <Button
             type="button"
             onClick={handleSubmit}
             disabled={isGenerating || isSuccess}
-            className={`h-11 px-8 text-sm sm:text-base font-semibold rounded-full relative shadow-md ${
+            className={`h-10 px-7 text-xs sm:text-sm font-semibold rounded-full relative shadow-md ${
               isSuccess
                 ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
                 : "bg-primary hover:bg-primary/90 shadow-primary/20"

@@ -4,13 +4,13 @@ import CornerElements from "./CornerElements";
 const ProfileHeader = ({ user }: { user: UserResource | null | undefined }) => {
   if (!user) return null;
   return (
-    <div className="mb-10 relative backdrop-blur-sm border border-border  p-6">
+    <div className="mb-5 sm:mb-6 relative backdrop-blur-sm border border-border bg-card/40 rounded-lg p-4 sm:p-5">
       <CornerElements />
 
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-        <div className="relative">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+        <div className="relative shrink-0">
           {user.imageUrl ? (
-            <div className="relative w-24 h-24 overflow-hidden rounded-lg">
+            <div className="relative w-16 h-16 sm:w-18 sm:h-18 overflow-hidden rounded-lg border border-primary/30">
               <img
                 src={user.imageUrl}
                 alt={user.fullName || "Profile"}
@@ -18,27 +18,27 @@ const ProfileHeader = ({ user }: { user: UserResource | null | undefined }) => {
               />
             </div>
           ) : (
-            <div className="w-24 h-24 rounded-lg bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
-              <span className="text-3xl font-bold text-primary">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-lg bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center border border-primary/30">
+              <span className="text-2xl font-bold text-primary font-mono">
                 {user.fullName?.charAt(0) || "U"}
               </span>
             </div>
           )}
-          <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-green-500 border-2 border-background"></div>
+          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-background"></div>
         </div>
 
-        <div className="flex-1">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
-            <h1 className="text-3xl font-bold tracking-tight">
-              <span className="text-foreground">{user.fullName}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-1.5">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+              {user.fullName}
             </h1>
-            <div className="flex items-center bg-cyber-terminal-bg backdrop-blur-sm border border-border rounded px-3 py-1">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse mr-2"></div>
-              <p className="text-xs font-mono text-primary">USER ACTIVE</p>
+            <div className="flex items-center bg-cyber-terminal-bg backdrop-blur-sm border border-border rounded px-2.5 py-0.5 w-fit">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse mr-1.5"></div>
+              <p className="text-[11px] font-mono text-primary font-medium">USER ACTIVE</p>
             </div>
           </div>
-          <div className="h-px w-full bg-linear-to-r from-primary via-secondary to-primary opacity-50 my-2"></div>
-          <p className="text-muted-foreground font-mono">
+          <div className="h-px w-full bg-linear-to-r from-primary/40 via-secondary/40 to-primary/40 opacity-40 my-1.5"></div>
+          <p className="text-xs text-muted-foreground font-mono truncate">
             {user.primaryEmailAddress?.emailAddress}
           </p>
         </div>
@@ -46,4 +46,5 @@ const ProfileHeader = ({ user }: { user: UserResource | null | undefined }) => {
     </div>
   );
 };
+
 export default ProfileHeader;

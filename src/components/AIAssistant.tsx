@@ -371,7 +371,7 @@ export default function AIAssistant({
       <CornerElements />
 
       {/* Card Header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background/40">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background/40">
         <div className="flex items-center gap-2">
           <div
             className={`w-2 h-2 rounded-full ${
@@ -410,7 +410,7 @@ export default function AIAssistant({
       </div>
 
       {/* Live Extracted Fields Bar */}
-      <div className="px-5 py-2.5 bg-muted/30 border-b border-border text-xs font-mono flex flex-wrap gap-2 items-center">
+      <div className="px-4 py-2 bg-muted/30 border-b border-border text-[11px] font-mono flex flex-wrap gap-1.5 items-center">
         <span className="text-muted-foreground text-[11px] uppercase tracking-wider">
           Profile:
         </span>
@@ -463,7 +463,7 @@ export default function AIAssistant({
       </div>
 
       {/* Chat Messages Container */}
-      <div className="p-5 space-y-4 max-h-96 min-h-[260px] overflow-y-auto font-sans">
+      <div className="p-3.5 sm:p-4 space-y-3 max-h-80 min-h-[200px] overflow-y-auto font-sans">
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -475,7 +475,7 @@ export default function AIAssistant({
               {msg.role === "assistant" ? "FitPilot AI" : "You"}
             </span>
             <div
-              className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm ${
+              className={`max-w-[85%] rounded-lg px-3.5 py-2 text-xs sm:text-sm ${
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground font-medium rounded-tr-xs"
                   : "bg-background/80 border border-border text-foreground rounded-tl-xs shadow-xs"
@@ -511,7 +511,7 @@ export default function AIAssistant({
 
       {/* Completion Banner */}
       {isFormComplete && (
-        <div className="mx-5 mb-3 p-3 rounded-lg border border-primary/40 bg-primary/10 flex items-center justify-between gap-3 animate-fadeIn">
+        <div className="mx-4 mb-2.5 p-2.5 rounded-lg border border-primary/40 bg-primary/10 flex items-center justify-between gap-2.5 animate-fadeIn">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
             <span className="text-xs text-foreground font-mono">
@@ -540,7 +540,7 @@ export default function AIAssistant({
       )}
 
       {/* Controls & Input */}
-      <div className="p-4 border-t border-border bg-background/30 space-y-3">
+      <div className="p-3 sm:p-3.5 border-t border-border bg-background/30 space-y-2.5">
         {/* Voice Animation Wave (visible when listening) */}
         {isListening && (
           <div className="flex items-center justify-center gap-1.5 h-8 bg-background/60 rounded-md border border-primary/40 px-3">
