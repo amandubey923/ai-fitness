@@ -50,7 +50,7 @@ const HeroSection = () => (
   <div className="relative backdrop-blur-sm border border-border rounded-xl p-10">
     <CornerElements />
 
-    <Badge className="mb-4 font-mono">FITAI BLOG</Badge>
+    <Badge className="mb-4 font-mono">FITPILOT BLOG</Badge>
 
     <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
       Knowledge that <span className="text-primary">Transforms</span> Your Body
@@ -153,7 +153,7 @@ const NewsletterSection = () => (
     <BookOpenIcon className="h-10 w-10 text-primary mx-auto mb-4" />
 
     <h2 className="text-2xl font-bold mb-3">
-      Join the FitAI Knowledge Stream
+      Join the FitPilot AI Knowledge Stream
     </h2>
 
     <p className="text-muted-foreground max-w-xl mx-auto mb-6">
@@ -179,7 +179,7 @@ const FinalCTA = () => (
 
     <p className="text-muted-foreground max-w-xl mx-auto mb-6">
       Reading is the first step. Systems create results.
-      Let FitAI build your personalized fitness system.
+      Let FitPilot AI build your personalized fitness system.
     </p>
 
     <Button size="lg" className="font-mono">

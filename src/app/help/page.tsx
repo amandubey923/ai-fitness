@@ -14,7 +14,7 @@ const HelpPage = () => {
 
       <Header
         title="Help & Support"
-        subtitle="Find answers, guidance, and support for using FitAI."
+        subtitle="Find answers, guidance, and support for using FitPilot AI."
       />
 
       {/* FAQ */}
@@ -27,7 +27,7 @@ const HelpPage = () => {
 
         <Accordion type="multiple" className="space-y-4">
           <FAQ
-            q="Is FitAI suitable for beginners?"
+            q="Is FitPilot AI suitable for beginners?"
             a="Yes. Plans are generated based on your fitness level, including complete beginners."
           />
           <FAQ
@@ -35,8 +35,8 @@ const HelpPage = () => {
             a="Absolutely. You can generate a new plan anytime based on updated goals."
           />
           <FAQ
-            q="Is FitAI a medical service?"
-            a="No. FitAI provides educational fitness guidance, not medical advice."
+            q="Is FitPilot AI a medical service?"
+            a="No. FitPilot AI provides educational fitness guidance, not medical advice."
           />
           <FAQ
             q="How accurate are AI-generated plans?"

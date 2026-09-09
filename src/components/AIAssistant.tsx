@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import CornerElements from "@/components/CornerElements";
+import FitPilotLogo from "@/components/FitPilotLogo";
 import {
   Mic,
   MicOff,
@@ -50,7 +51,7 @@ export default function AIAssistant({
     {
       role: "assistant",
       content:
-        "Hey! I'm AmanCode AI, your personal fitness coach. Tell me about yourself—your age, height, weight, how many days a week you want to train, your fitness goal, and any dietary restrictions or injuries.",
+        "Hey! I'm FitPilot AI, your personal fitness coach. Tell me about yourself—your age, height, weight, how many days a week you want to train, your fitness goal, and any dietary restrictions or injuries.",
     },
   ]);
   const [inputText, setInputText] = useState("");
@@ -382,8 +383,8 @@ export default function AIAssistant({
             }`}
           />
           <span className="text-xs font-mono text-primary flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            AMANCODE_AI_ASSISTANT
+            <FitPilotLogo size={14} />
+            FITPILOT_AI_ASSISTANT
           </span>
         </div>
 
@@ -471,7 +472,7 @@ export default function AIAssistant({
             }`}
           >
             <span className="text-[11px] font-mono text-muted-foreground mb-1 px-1">
-              {msg.role === "assistant" ? "AmanCode AI" : "You"}
+              {msg.role === "assistant" ? "FitPilot AI" : "You"}
             </span>
             <div
               className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm ${

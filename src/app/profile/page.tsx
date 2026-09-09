@@ -54,15 +54,16 @@ const ProfilePage = () => {
                 <Button
                   key={plan._id}
                   onClick={() => setSelectedPlanId(plan._id)}
-                  className={`text-foreground border hover:text-white ${
-                    selectedPlanId === plan._id
-                      ? "bg-primary/20 text-primary border-primary"
+                  size="sm"
+                  className={`h-9 px-3.5 text-xs font-mono text-foreground border transition-all ${
+                    (selectedPlanId === plan._id) || (!selectedPlanId && plan.isActive)
+                      ? "bg-primary/20 text-primary border-primary font-semibold shadow-xs"
                       : "bg-transparent border-border hover:border-primary/50"
                   }`}
                 >
                   {plan.name}
                   {plan.isActive && (
-                    <span className="ml-2 bg-green-500/20 text-green-500 text-xs px-2 py-0.5 rounded">
+                    <span className="ml-2 bg-green-500/20 text-green-500 text-[10px] px-1.5 py-0.5 rounded font-mono font-medium">
                       ACTIVE
                     </span>
                   )}
@@ -79,16 +80,16 @@ const ProfilePage = () => {
 
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <h3 className="text-lg font-bold">
+                <h3 className="text-lg font-bold font-mono">
                   PLAN: <span className="text-primary">{currentPlan.name}</span>
                 </h3>
               </div>
 
               <Tabs defaultValue="workout" className="w-full">
-                <TabsList className="mb-6 w-full grid grid-cols-2 bg-cyber-terminal-bg border">
+                <TabsList className="mb-6 w-full grid grid-cols-2 bg-background/50 border border-border h-11 p-1 rounded-md">
                   <TabsTrigger
                     value="workout"
-                    className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+                    className="h-9 font-mono text-xs sm:text-sm data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
                   >
                     <DumbbellIcon className="mr-2 size-4" />
                     Workout Plan
@@ -96,7 +97,7 @@ const ProfilePage = () => {
 
                   <TabsTrigger
                     value="diet"
-                    className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+                    className="h-9 font-mono text-xs sm:text-sm data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
                   >
                     <AppleIcon className="mr-2 h-4 w-4" />
                     Diet Plan

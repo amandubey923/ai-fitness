@@ -8,17 +8,17 @@ const TermsPage = () => {
 
       <Header
         title="Terms & Conditions"
-        subtitle="Please read these terms carefully before using FitAI."
+        subtitle="Please read these terms carefully before using FitPilot AI."
       />
 
       <ContentCard title="1. Acceptance of Terms">
-        By accessing or using FitAI, you agree to be bound by these Terms
+        By accessing or using FitPilot AI, you agree to be bound by these Terms
         and all applicable laws. If you do not agree, you may not use
         the platform.
       </ContentCard>
 
       <ContentCard title="2. Use of the Platform">
-        FitAI provides AI-generated fitness and diet plans for
+        FitPilot AI provides AI-generated fitness and diet plans for
         educational and informational purposes only. It is not a
         replacement for professional medical advice.
       </ContentCard>
@@ -31,13 +31,13 @@ const TermsPage = () => {
 
       <ContentCard title="4. Health Disclaimer">
         You acknowledge that fitness activities carry risks.
-        FitAI is not responsible for injuries, health conditions,
+        FitPilot AI is not responsible for injuries, health conditions,
         or outcomes resulting from the use of our plans.
       </ContentCard>
 
       <ContentCard title="5. Intellectual Property">
         All content, designs, algorithms, and branding are the
-        intellectual property of FitAI and may not be copied or reused
+        intellectual property of FitPilot AI and may not be copied or reused
         without permission.
       </ContentCard>
 
@@ -48,7 +48,7 @@ const TermsPage = () => {
 
       <ContentCard title="7. Changes to Terms">
         These terms may be updated at any time. Continued use of
-        FitAI implies acceptance of updated terms.
+        FitPilot AI implies acceptance of updated terms.
       </ContentCard>
 
     </section>

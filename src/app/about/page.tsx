@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import CornerElements from "@/components/CornerElements";
 import { Button } from "@/components/ui/button";
 import { DumbbellIcon, AppleIcon, BrainCircuitIcon, ShieldCheckIcon } from "lucide-react";
@@ -12,11 +13,11 @@ const AboutPage = () => {
         <CornerElements />
 
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-          About <span className="text-primary">FitAI</span>
+          About <span className="text-primary">FitPilot AI</span>
         </h1>
 
         <p className="text-muted-foreground max-w-3xl leading-relaxed">
-          FitAI is an intelligent fitness platform designed to create
+          FitPilot AI is an intelligent fitness platform designed to create
           personalized workout and diet plans using data, consistency,
           and discipline. Our goal is to help you build a stronger body,
           sharper mind, and a sustainable lifestyle.
@@ -33,7 +34,7 @@ const AboutPage = () => {
 
         <p className="text-muted-foreground leading-relaxed">
           We believe fitness should not be confusing or generic.
-          FitAI exists to remove guesswork from training and nutrition
+          FitPilot AI exists to remove guesswork from training and nutrition
           by providing structured, realistic, and goal-oriented plans
           tailored to every individual.
         </p>
@@ -65,7 +66,7 @@ const AboutPage = () => {
         <CornerElements />
 
         <h2 className="text-xl font-bold mb-4">
-          Why Choose <span className="text-primary">FitAI</span>?
+          Why Choose <span className="text-primary">FitPilot AI</span>?
         </h2>
 
         <ul className="space-y-3 text-muted-foreground">
@@ -118,12 +119,14 @@ const AboutPage = () => {
 
         <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
           Fitness is not about motivation — it’s about systems.
-          FitAI gives you the system. You bring the consistency.
+          FitPilot AI gives you the system. You bring the consistency.
         </p>
 
-        <Button size="lg" className="font-mono">
-          Get Started
-        </Button>
+        <Link href="/generate-program">
+          <Button size="lg" className="h-11 px-8 font-mono font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md">
+            Get Started
+          </Button>
+        </Link>
       </div>
     </section>
   );

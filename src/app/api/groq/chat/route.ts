@@ -1,50 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-const SYSTEM_PROMPT = `You are AmanCode AI, an expert, friendly, and motivating fitness & nutrition assistant.
+const SYSTEM_PROMPT = `You are FitPilot AI, an expert, friendly, and motivating fitness & nutrition assistant.
 Your goal is to converse naturally with the user to collect their fitness information for their personalized workout and diet plan.
 
 The required fields to collect are:
-1. age (e.g. 20, 25, 34)
-2. height (e.g. "175 cm", "180 cm", "5'10\"", "5'6\"")
-3. weight (e.g. "60 kg", "75 kg", "165 lbs", "170 lbs")
-4. workout_days (must be an integer between 1 and 7)
-5. fitness_goal (must map to exactly one of: "Weight Loss", "Muscle Gain", "General Fitness", "Endurance", "Strength", "Flexibility")
-6. fitness_level (must map to exactly one of: "Beginner", "Intermediate", "Advanced")
-7. dietary_restrictions (must map to exactly one of: "None", "Vegetarian", "Vegan", "Lactose Intolerant", "Gluten-Free", "Keto", "Halal", "Other")
+1. age (number)
+2. height (e.g. "175 cm" or "5'9")
+3. weight (e.g. "70 kg" or "154 lbs")
+4. workout_days (number of days per week, between 1 and 7)
+5. fitness_goal ("Weight Loss", "Muscle Gain", "General Fitness", "Endurance", "Strength", or "Flexibility")
+6. fitness_level ("Beginner", "Intermediate", or "Advanced")
+7. dietary_restrictions ("None", "Vegetarian", "Vegan", "Lactose Intolerant", "Gluten-Free", "Keto", "Halal", or custom)
+8. injuries (optional, e.g. "knee pain", "lower back issues", or "none")
 
-Optional field:
-8. injuries (e.g. "knee pain", "lower back pain", "shoulder impingement", or "none")
+CONVERSATION GUIDELINES:
+- Greet warmly and keep messages concise (2-3 sentences max).
+- You can collect multiple details at once if the user provides them.
+- Ask friendly follow-ups for any missing fields.
+- When you have collected enough info, encourage them to review the values in their profile preview and click "Generate Plan".
 
-INSTRUCTIONS:
-- Be warm, encouraging, concise, and professional.
-- Understand casual, conversational language (e.g. "I'm 22, 175 cm tall and weigh 60 kilos. I want to gain muscle. I'm a beginner and can work out 5 days a week. I'm vegetarian.").
-- Parse numbers and units intelligently:
-  * "five foot ten" -> "5'10\""
-  * "around 70 kilos" -> "70 kg"
-  * "around 150 pounds" -> "150 lbs"
-  * "I don't eat meat" or "veggie" -> "Vegetarian"
-  * "I don't have any injuries" -> "none"
-  * "three days a week" -> "3"
-- If any required fields are missing, acknowledge what you've gathered so far in a friendly, conversational way, and ask for the missing information in 1-2 concise questions.
-- NEVER invent, hallucinate, or guess missing information. Only extract what the user explicitly stated or confirmed.
-- If user input is ambiguous (e.g. "four or five days"), ask for clarification rather than guessing.
-- Once all 7 required fields are present, provide an encouraging summary confirming that their form is now filled and ready for review.
-- ALWAYS return valid JSON matching this schema:
+OUTPUT FORMAT:
+Always return a JSON object with this exact structure:
 {
-  "reply": "Conversational response to the user...",
+  "reply": "Your conversational response to the user here",
   "extracted": {
-    "age": string or null,
-    "height": string or null,
-    "weight": string or null,
-    "workout_days": string or null,
-    "fitness_goal": string or null,
-    "fitness_level": string or null,
-    "dietary_restrictions": string or null,
-    "injuries": string or null
-  },
-  "isComplete": boolean
-}`;
+    "age": "25" or null,
+    "height": "175 cm" or null,
+    "weight": "70 kg" or null,
+    "workout_days": "4" or null,
+    "fitness_goal": "Muscle Gain" or null,
+    "fitness_level": "Intermediate" or null,
+    "dietary_restrictions": "None" or null,
+    "injuries": "none" or null
+  }
+}
+Only include fields in "extracted" that the user has explicitly mentioned or that can be confidently inferred. If a field is not yet known, set it to null.
+Never wrap the output in markdown fences. Return pure JSON only.`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,35 +45,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const apiKey = process.env.GROQ_API_KEY?.split(/[\r\n]+/)[0]?.trim();
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "GROQ_API_KEY is not configured on the server." },
+        { error: "GROQ_API_KEY is not configured" },
         { status: 500 }
       );
     }
 
-    const { messages, currentForm } = await req.json();
-
-    if (!Array.isArray(messages) || messages.length === 0) {
+    const { messages } = await req.json();
+    if (!Array.isArray(messages)) {
       return NextResponse.json(
-        { error: "Messages array is required." },
+        { error: "Invalid messages format" },
         { status: 400 }
       );
     }
-
-    const contextMessage = currentForm
-      ? `Current known form values: ${JSON.stringify(currentForm)}`
-      : "";
-
-    const groqMessages = [
-      { role: "system", content: SYSTEM_PROMPT },
-      ...(contextMessage ? [{ role: "system", content: contextMessage }] : []),
-      ...messages.map((m: { role: string; content: string }) => ({
-        role: m.role === "assistant" ? "assistant" : "user",
-        content: m.content,
-      })),
-    ];
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -90,43 +68,48 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-120b",
-        messages: groqMessages,
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...messages.slice(-10),
+        ],
         response_format: { type: "json_object" },
-        temperature: 0.3,
-        max_tokens: 1024,
+        temperature: 0.5,
+        max_tokens: 500,
       }),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[Groq Chat Error]:", response.status, errorText);
+      const errText = await response.text();
+      console.error("[Groq Chat API] Error from Groq:", errText);
       return NextResponse.json(
-        { error: "Failed to communicate with AI assistant." },
+        { error: "Failed to get response from Groq" },
         { status: 502 }
       );
     }
 
     const data = await response.json();
-    const rawContent = data.choices?.[0]?.message?.content;
+    const rawContent = data.choices?.[0]?.message?.content ?? "{}";
 
-    if (!rawContent) {
-      throw new Error("Empty response from AI assistant");
+    let parsed: any;
+    try {
+      parsed = JSON.parse(rawContent);
+    } catch {
+      parsed = {
+        reply: rawContent.replace(/```json?/g, "").replace(/```/g, "").trim(),
+        extracted: {},
+      };
     }
 
-    const parsed = JSON.parse(rawContent);
-
     return NextResponse.json({
-      reply: parsed.reply || "I got your details!",
+      reply: parsed.reply || "I got your info! Let me know if you want to adjust anything.",
       extracted: parsed.extracted || {},
-      isComplete: Boolean(parsed.isComplete),
     });
-  } catch (error: any) {
-    console.error("[API /api/groq/chat Error]:", error);
+  } catch (err: any) {
+    console.error("[Groq Chat API] Handler error:", err);
     return NextResponse.json(
-      { error: error?.message || "Internal server error" },
+      { error: err?.message || "Internal server error" },
       { status: 500 }
     );
   }
 }
-

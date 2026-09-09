@@ -348,12 +348,6 @@ export const generateFitnessPlan = action({
           `Gluten-free → no wheat, barley, rye, regular bread or pasta. ` +
           `Apply to EVERY meal.`;
 
-      // ── Gemini model ───────────────────────────────────────────────────────
-      currentStep = "Step 3: Initialize Gemini API";
-      const rawKey = process.env.GEMINI_API_KEY || "";
-      const apiKey = rawKey.split(/[\r\n]+/)[0]?.trim();
-      if (!apiKey) {
-        throw new Error("GEMINI_API_KEY is not configured in Convex environment.");
       // ── Validate API Keys ──────────────────────────────────────────────────
       currentStep = "Step 3: Validate API Keys";
       const rawGeminiKey = process.env.GEMINI_API_KEY || "";
@@ -365,18 +359,7 @@ export const generateFitnessPlan = action({
       if (!apiKey && !groqKey) {
         throw new Error("No AI API keys configured in Convex environment.");
       }
-      console.log(`[generateFitnessPlan - Step 3: Key] API key validated (length: ${apiKey.length})`);
       console.log(`[generateFitnessPlan - Step 3: Keys] Validated keys: Gemini=${!!apiKey}, Groq=${!!groqKey}`);
-
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-3.6-flash",
-        generationConfig: {
-          temperature: 0.3,
-          topP: 0.9,
-          responseMimeType: "application/json",
-        },
-      });
 
       // ── Workout prompt ─────────────────────────────────────────────────────
       const workoutPrompt = `You are an expert certified personal trainer. Create a highly personalised weekly workout plan.
@@ -472,29 +455,21 @@ Return this EXACT JSON structure:
 }`;
 
       // ── Parallel generation ────────────────────────────────────────────────
-      currentStep = "Step 4: Request Gemini Plans (Parallel)";
-      console.log(`[generateFitnessPlan - Step 4: Gemini] Requesting workout and diet plans in parallel (model: gemini-3.6-flash)...`);
       currentStep = "Step 4: Request AI Plans (Parallel)";
       console.log(`[generateFitnessPlan - Step 4: AI] Requesting workout and diet plans in parallel...`);
 
-      const [workoutResult, dietResult] = await Promise.all([
-        model.generateContent(workoutPrompt),
-        model.generateContent(dietPrompt),
       const [workoutText, dietText] = await Promise.all([
         generateJSONContent(workoutPrompt, apiKey, groqKey),
         generateJSONContent(dietPrompt, apiKey, groqKey),
       ]);
-      console.log(`[generateFitnessPlan - Step 4: Gemini] Responses received successfully.`);
       console.log(`[generateFitnessPlan - Step 4: AI] Responses received successfully.`);
 
       // ── Parse workout ──────────────────────────────────────────────────────
       currentStep = "Step 5: Parse and Validate Plans";
       let workoutplan: any;
       try {
-        workoutplan = JSON.parse(workoutResult.response.text());
         workoutplan = JSON.parse(workoutText);
       } catch {
-        throw new Error("Gemini returned invalid JSON for the workout plan");
         throw new Error("AI returned invalid JSON for the workout plan");
       }
       try {
@@ -506,10 +481,8 @@ Return this EXACT JSON structure:
       // ── Parse diet ────────────────────────────────────────────────────────
       let dietplan: any;
       try {
-        dietplan = JSON.parse(dietResult.response.text());
         dietplan = JSON.parse(dietText);
       } catch {
-        throw new Error("Gemini returned invalid JSON for the diet plan");
         throw new Error("AI returned invalid JSON for the diet plan");
       }
       try {

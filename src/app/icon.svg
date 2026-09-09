@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" width="32" height="32">
+  <rect width="32" height="32" rx="6" fill="#0a0c14" />
+  <path
+    d="M16 4L5 26L16 21.5L27 26L16 4Z"
+    fill="url(#fp-fav-grad)"
+    stroke="#18cef2"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M16 10L10.5 22L16 19L21.5 22L16 10Z"
+    fill="#0a0c14"
+    stroke="#18cef2"
+    stroke-width="1.2"
+    stroke-linejoin="round"
+  />
+  <circle cx="16" cy="15" r="2" fill="#18cef2" />
+  <path
+    d="M16 19V24"
+    stroke="#18cef2"
+    stroke-width="1.5"
+    stroke-linecap="round"
+  />
+  <defs>
+    <linearGradient
+      id="fp-fav-grad"
+      x1="16"
+      y1="4"
+      x2="16"
+      y2="26"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="#18cef2" stop-opacity="0.9" />
+      <stop offset="1" stop-color="#0284c7" stop-opacity="0.4" />
+    </linearGradient>
+  </defs>
+</svg>
+

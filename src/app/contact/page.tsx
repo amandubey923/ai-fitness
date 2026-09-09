@@ -48,7 +48,7 @@ const ContactPage = () => {
         <InfoCard
           icon={<MailIcon className="h-5 w-5 text-primary" />}
           title="Email"
-          value="support@fitai.app"
+          value="support@fitpilot.ai"
         />
 
         <InfoCard
