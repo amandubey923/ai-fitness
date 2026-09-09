@@ -38,6 +38,12 @@ Always return a JSON object with this exact structure:
 Only include fields in "extracted" that the user has explicitly mentioned or that can be confidently inferred. If a field is not yet known, set it to null.
 Never wrap the output in markdown fences. Return pure JSON only.`;
 
+const MODELS = [
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "qwen/qwen3.8-27b",
+];
+
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
@@ -45,10 +51,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const apiKey = process.env.GROQ_API_KEY;
+    const rawKey = process.env.GROQ_API_KEY || "";
+    const apiKey = rawKey.split(/[\r\n]+/)[0]?.trim().replace(/^["']|["']$/g, "");
     if (!apiKey) {
+      console.error("[Groq Chat API] GROQ_API_KEY is missing or empty");
       return NextResponse.json(
-        { error: "GROQ_API_KEY is not configured" },
+        { error: "GROQ_API_KEY is not configured in the environment." },
         { status: 500 }
       );
     }
@@ -61,52 +69,64 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...messages.slice(-10),
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.5,
-        max_tokens: 500,
-      }),
-    });
+    let lastError: string | null = null;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("[Groq Chat API] Error from Groq:", errText);
-      return NextResponse.json(
-        { error: "Failed to get response from Groq" },
-        { status: 502 }
-      );
+    // Try primary model (openai/gpt-oss-120b), fall back to secondary if needed
+    for (const modelName of MODELS) {
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: modelName,
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              ...messages.slice(-10),
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.4,
+            max_tokens: 500,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const rawContent = data.choices?.[0]?.message?.content ?? "{}";
+
+          let parsed: any;
+          try {
+            parsed = JSON.parse(rawContent);
+          } catch {
+            parsed = {
+              reply: rawContent.replace(/```json?/g, "").replace(/```/g, "").trim(),
+              extracted: {},
+            };
+          }
+
+          return NextResponse.json({
+            reply: parsed.reply || "I got your info! Let me know if you want to adjust anything.",
+            extracted: parsed.extracted || {},
+          });
+        }
+
+        const errText = await response.text();
+        console.error(`[Groq Chat API] Model ${modelName} returned status ${response.status}:`, errText);
+        lastError = `Groq API status ${response.status}`;
+      } catch (err: any) {
+        console.error(`[Groq Chat API] Network/fetch error with ${modelName}:`, err?.message || err);
+        lastError = err?.message || "Network error";
+      }
     }
 
-    const data = await response.json();
-    const rawContent = data.choices?.[0]?.message?.content ?? "{}";
-
-    let parsed: any;
-    try {
-      parsed = JSON.parse(rawContent);
-    } catch {
-      parsed = {
-        reply: rawContent.replace(/```json?/g, "").replace(/```/g, "").trim(),
-        extracted: {},
-      };
-    }
-
-    return NextResponse.json({
-      reply: parsed.reply || "I got your info! Let me know if you want to adjust anything.",
-      extracted: parsed.extracted || {},
-    });
+    return NextResponse.json(
+      { error: "Failed to get response from Groq. Please check your Groq API configuration." },
+      { status: 502 }
+    );
   } catch (err: any) {
-    console.error("[Groq Chat API] Handler error:", err);
+    console.error("[Groq Chat API] Uncaught handler error:", err);
     return NextResponse.json(
       { error: err?.message || "Internal server error" },
       { status: 500 }
