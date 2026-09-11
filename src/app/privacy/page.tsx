@@ -1,5 +1,3 @@
-"use client";
-
 import CornerElements from "@/components/CornerElements";
 import FitPilotLogo from "@/components/FitPilotLogo";
 import { ShieldCheck, Lock, Database, EyeOff } from "lucide-react";

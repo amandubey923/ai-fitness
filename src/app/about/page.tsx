@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import CornerElements from "@/components/CornerElements";
 import FitPilotLogo from "@/components/FitPilotLogo";
