@@ -1,13 +1,14 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useQuery, useAction } from "convex/react";
+import { useQuery, useAction, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import ProfileHeader from "@/components/ProfileHeader";
 import NoFitnessPlan from "@/components/NoFitnessPlan";
 import CornerElements from "@/components/CornerElements";
+import PrintablePlanDossier from "@/components/PrintablePlanDossier";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -28,6 +29,9 @@ import {
   Check,
   ChevronRight,
   ShieldCheck,
+  Trash2,
+  Loader2,
+  Printer,
 } from "lucide-react";
 import {
   Accordion,
@@ -64,17 +68,77 @@ const DIETARY_OPTIONS = [
   "Halal",
 ];
 
-const ProfilePage = () => {
+export default function ProfilePage() {
   const { user } = useUser();
   const userId = user?.id as string;
 
   const allPlans = useQuery(api.plans.getUserplans, { userId });
   const [selectedPlanId, setSelectedPlanId] = useState<null | string>(null);
 
+  const deletePlanMutation = useMutation(api.plans.deletePlan);
+  const setActivePlanMutation = useMutation(api.plans.setActivePlan);
+
+  const [planToDelete, setPlanToDelete] = useState<{
+    id: string;
+    name: string;
+    isActive: boolean;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isActivatingId, setIsActivatingId] = useState<string | null>(null);
+
   const activePlan = allPlans?.find((plan) => plan.isActive);
   const currentPlan = selectedPlanId
     ? allPlans?.find((plan) => plan._id === selectedPlanId)
     : activePlan;
+
+  const handleConfirmDelete = async () => {
+    if (!planToDelete || !userId) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await deletePlanMutation({
+        planId: planToDelete.id as any,
+        userId,
+      });
+
+      try {
+        localStorage.removeItem(`fitpilot_completed_${planToDelete.id}`);
+      } catch (e) {
+        console.error("Failed to clean up localStorage:", e);
+      }
+
+      if (selectedPlanId === planToDelete.id) {
+        setSelectedPlanId(null);
+      }
+
+      setPlanToDelete(null);
+    } catch (err: any) {
+      console.error("Plan deletion failed:", err);
+      setDeleteError(
+        err?.message || "Failed to delete plan. Please try again."
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSetActive = async (planId: string) => {
+    if (!userId) return;
+    setIsActivatingId(planId);
+    try {
+      await setActivePlanMutation({
+        planId: planId as any,
+        userId,
+      });
+      setSelectedPlanId(planId);
+    } catch (err: any) {
+      console.error("Failed to set active plan:", err);
+    } finally {
+      setIsActivatingId(null);
+    }
+  };
 
   // ── FEATURE B: Workout Completion Tracking (localStorage) ─────────────────
   const [completedMap, setCompletedMap] = useState<Record<string, boolean>>({});
@@ -334,13 +398,15 @@ const ProfilePage = () => {
 
   return (
     <section className="relative z-10 pt-3 sm:pt-5 pb-16 grow container mx-auto px-4 max-w-6xl">
-      <ProfileHeader user={user} />
+      <div className="no-print">
+        <ProfileHeader user={user} />
+      </div>
 
       {allPlans && allPlans.length > 0 ? (
         <div className="space-y-6">
           {/* FEATURE A: TODAY DASHBOARD SUMMARY */}
           {todaySummary && (
-            <div className="relative backdrop-blur-sm border border-primary/30 bg-card/40 rounded-lg p-4 sm:p-4.5 shadow-xs">
+            <div className="no-print relative backdrop-blur-sm border border-primary/30 bg-card/40 rounded-lg p-4 sm:p-4.5 shadow-xs">
               <CornerElements />
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2.5">
@@ -442,7 +508,7 @@ const ProfilePage = () => {
           )}
 
           {/* PLAN SELECTOR */}
-          <div className="relative backdrop-blur-sm border border-border bg-card/30 rounded-lg p-4 sm:p-4.5">
+          <div className="no-print relative backdrop-blur-sm border border-border bg-card/30 rounded-lg p-4 sm:p-4.5">
             <CornerElements />
             <div className="flex items-center justify-between mb-3.5">
               <h2 className="text-lg sm:text-xl font-bold tracking-tight">
@@ -455,26 +521,49 @@ const ProfilePage = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {allPlans.map((plan) => (
-                <Button
-                  key={plan._id}
-                  onClick={() => setSelectedPlanId(plan._id)}
-                  size="sm"
-                  className={`h-8.5 px-3 text-xs sm:text-sm font-mono text-foreground border transition-all ${
-                    selectedPlanId === plan._id ||
-                    (!selectedPlanId && plan.isActive)
-                      ? "bg-primary/20 text-primary border-primary font-semibold shadow-xs"
-                      : "bg-transparent border-border hover:border-primary/50"
-                  }`}
-                >
-                  {plan.name}
-                  {plan.isActive && (
-                    <span className="ml-2 bg-green-500/20 text-green-500 text-xs px-1.5 py-0.2 rounded font-mono font-semibold">
-                      ACTIVE
-                    </span>
-                  )}
-                </Button>
-              ))}
+              {allPlans.map((plan) => {
+                const isSelected =
+                  selectedPlanId === plan._id ||
+                  (!selectedPlanId && plan.isActive);
+                return (
+                  <div
+                    key={plan._id}
+                    className={`inline-flex items-center rounded-md border transition-all ${
+                      isSelected
+                        ? "bg-primary/20 text-primary border-primary font-semibold shadow-xs"
+                        : "bg-transparent border-border hover:border-primary/50 text-foreground"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPlanId(plan._id)}
+                      className="h-8.5 px-3 text-xs sm:text-sm font-mono flex items-center gap-1.5 focus:outline-hidden"
+                    >
+                      <span>{plan.name}</span>
+                      {plan.isActive && (
+                        <span className="bg-green-500/20 text-green-400 text-xs px-1.5 py-0.2 rounded font-mono font-semibold">
+                          ACTIVE
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPlanToDelete({
+                          id: plan._id,
+                          name: plan.name,
+                          isActive: !!plan.isActive,
+                        });
+                      }}
+                      title={`Delete "${plan.name}"`}
+                      className="h-8.5 pr-2.5 pl-0.5 text-muted-foreground/60 hover:text-destructive transition-colors flex items-center justify-center focus:outline-hidden"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -482,20 +571,53 @@ const ProfilePage = () => {
           {currentPlan && (
             <div
               id="plan-tabs-section"
-              className="relative backdrop-blur-sm border border-border bg-card/30 rounded-lg p-4 sm:p-5"
+              className="relative backdrop-blur-sm border border-border bg-card/30 rounded-lg p-4 sm:p-5 print:border-none print:bg-white print:p-0 print:backdrop-blur-none print:shadow-none"
             >
-              <CornerElements />
+              <div className="no-print">
+                <CornerElements />
+              </div>
 
               {/* Plan Header with FEATURE D Modify Button */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-border/60">
-                <div className="flex items-center gap-2">
+              <div className="no-print flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-border/60">
+                <div className="flex flex-wrap items-center gap-2">
                   <div className="size-2 rounded-full bg-primary animate-pulse" />
                   <h3 className="text-lg sm:text-xl font-bold font-mono tracking-tight">
                     PLAN: <span className="text-primary">{currentPlan.name}</span>
                   </h3>
+                  {currentPlan.isActive ? (
+                    <span className="ml-1 bg-green-500/15 text-green-400 border border-green-500/30 text-xs px-2 py-0.5 rounded font-mono font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="size-3" /> ACTIVE
+                    </span>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isActivatingId === currentPlan._id}
+                      onClick={() => handleSetActive(currentPlan._id)}
+                      className="h-6.5 px-2 text-xs font-mono border-primary/40 text-primary hover:bg-primary/10 ml-1"
+                    >
+                      {isActivatingId === currentPlan._id ? (
+                        <Loader2 className="size-3 mr-1 animate-spin" />
+                      ) : (
+                        <Check className="size-3 mr-1" />
+                      )}
+                      Set as Active
+                    </Button>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="no-print flex flex-wrap items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.print()}
+                    className="h-8 px-2.5 text-xs sm:text-sm font-mono font-medium border-border hover:border-primary/50 text-foreground transition-colors"
+                    title="Print or Save Plan as PDF"
+                  >
+                    <Printer className="size-3.5 mr-1 text-primary" />
+                    Print / PDF
+                  </Button>
+
                   <Button
                     variant="outline"
                     size="sm"
@@ -516,12 +638,29 @@ const ProfilePage = () => {
                       New Plan
                     </Button>
                   </Link>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setPlanToDelete({
+                        id: currentPlan._id,
+                        name: currentPlan.name,
+                        isActive: !!currentPlan.isActive,
+                      })
+                    }
+                    className="h-8 px-2.5 text-xs sm:text-sm font-mono border-destructive/30 text-destructive/80 hover:text-destructive hover:border-destructive hover:bg-destructive/10 transition-colors"
+                    title="Delete current plan"
+                  >
+                    <Trash2 className="size-3.5 mr-1" />
+                    Delete
+                  </Button>
                 </div>
               </div>
 
               {/* FEATURE D: CONTROLLED MODIFY / REGENERATE DRAWER */}
               {isModifyOpen && (
-                <div className="mb-6 p-4 rounded-lg border border-primary/40 bg-background/80 backdrop-blur-md space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="no-print mb-6 p-4 rounded-lg border border-primary/40 bg-background/80 backdrop-blur-md space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="flex items-center justify-between pb-2 border-b border-border">
                     <div className="flex items-center gap-2">
                       <Sparkles className="size-4 text-primary" />
@@ -712,7 +851,7 @@ const ProfilePage = () => {
               )}
 
               {/* TABS: WORKOUT & DIET */}
-              <Tabs defaultValue="workout" className="w-full">
+              <Tabs defaultValue="workout" className="w-full no-print">
                 <TabsList className="mb-4 w-full grid grid-cols-2 bg-background/50 border border-border h-9.5 p-1 rounded-md">
                   <TabsTrigger
                     value="workout"
@@ -1060,14 +1199,106 @@ const ProfilePage = () => {
                   </div>
                 </TabsContent>
               </Tabs>
+
+              {/* PRINT-ONLY COMPLETE WORKOUT & NUTRITION DOSSIER */}
+              <PrintablePlanDossier
+                plan={currentPlan}
+                userName={user?.fullName || user?.firstName}
+              />
             </div>
           )}
         </div>
       ) : (
         <NoFitnessPlan />
       )}
+
+      {/* PLAN DELETION CONFIRMATION MODAL */}
+      {planToDelete && (
+        <div className="no-print fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md rounded-xl border border-destructive/40 bg-card/95 p-5 sm:p-6 shadow-2xl space-y-4">
+            <CornerElements />
+
+            <div className="flex items-start gap-3">
+              <div className="size-10 rounded-lg bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive shrink-0">
+                <AlertCircle className="size-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base sm:text-lg font-bold font-mono tracking-tight text-foreground flex items-center gap-2">
+                  CONFIRM DELETION
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Are you sure you want to permanently delete{" "}
+                  <span className="text-primary font-semibold font-mono">
+                    "{planToDelete.name}"
+                  </span>
+                  ?
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-destructive/10 border border-destructive/20 text-xs font-mono space-y-1.5">
+              <p className="font-semibold text-destructive flex items-center gap-1.5">
+                ⚠️ PERMANENT PURGE PROTOCOL
+              </p>
+              <p className="text-muted-foreground leading-normal">
+                This will remove the workout routines, schedule, and diet
+                architecture. All local exercise completion tracking will also
+                be purged.
+              </p>
+              {planToDelete.isActive && allPlans && allPlans.length > 1 && (
+                <p className="text-primary pt-1 font-sans text-xs">
+                  • This is currently your active plan. Another saved plan will
+                  automatically become active.
+                </p>
+              )}
+              {allPlans && allPlans.length === 1 && (
+                <p className="text-amber-400 pt-1 font-sans text-xs">
+                  • This is your only plan. Deleting it will return you to the
+                  initial program generator.
+                </p>
+              )}
+            </div>
+
+            {deleteError && (
+              <div className="p-2.5 rounded bg-destructive/20 border border-destructive text-destructive text-xs font-mono">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isDeleting}
+                onClick={() => {
+                  setPlanToDelete(null);
+                  setDeleteError(null);
+                }}
+                className="h-9 px-4 text-xs font-mono border-border hover:bg-muted"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="h-9 px-4 text-xs font-mono font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-sm"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="size-3.5 mr-1.5 animate-spin" /> Purging...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="size-3.5 mr-1.5" /> Confirm Delete
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
-};
-
-export default ProfilePage;
+}
