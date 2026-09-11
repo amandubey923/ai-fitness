@@ -20,12 +20,15 @@ import {
 
 export interface FormState {
   age: string;
+  gender?: string;
   height: string;
   weight: string;
   injuries: string;
   workout_days: string;
   fitness_goal: string;
   fitness_level: string;
+  equipment?: string;
+  workout_duration?: string;
   dietary_restrictions: string;
 }
 
@@ -327,6 +330,15 @@ export default function AIAssistant({
         if (ext.fitness_level) {
           updates.fitness_level = String(ext.fitness_level).trim();
         }
+        if (ext.gender) {
+          updates.gender = String(ext.gender).trim();
+        }
+        if (ext.equipment) {
+          updates.equipment = String(ext.equipment).trim();
+        }
+        if (ext.workout_duration) {
+          updates.workout_duration = String(ext.workout_duration).trim();
+        }
         if (ext.dietary_restrictions) {
           updates.dietary_restrictions = String(ext.dietary_restrictions).trim();
         }
@@ -419,6 +431,11 @@ export default function AIAssistant({
             Age: {form.age}
           </span>
         ) : null}
+        {form.gender ? (
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
+            {form.gender}
+          </span>
+        ) : null}
         {form.height ? (
           <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             H: {form.height}
@@ -442,6 +459,11 @@ export default function AIAssistant({
         {form.fitness_level ? (
           <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30">
             Lvl: {form.fitness_level}
+          </span>
+        ) : null}
+        {form.equipment ? (
+          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-medium border border-primary/30 truncate max-w-[120px]">
+            Eq: {form.equipment}
           </span>
         ) : null}
         {form.dietary_restrictions ? (

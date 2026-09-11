@@ -104,9 +104,13 @@ function estimateTDEE(
   weightKg: number,
   heightCm: number,
   age: number,
-  goal: string
+  goal: string,
+  gender?: string
 ): { tdee: number; target: number; label: string } {
-  const bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
+  const isFemale = gender?.toLowerCase() === "female";
+  const bmr = isFemale
+    ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
+    : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
   const tdee = Math.round(bmr * 1.55);
   const g = goal.toLowerCase();
 
@@ -227,12 +231,15 @@ async function generateJSONContent(
 export const generateFitnessPlan = action({
   args: {
     age: v.string(),
+    gender: v.optional(v.string()),
     height: v.string(),
     weight: v.string(),
     injuries: v.string(),
     workout_days: v.number(),
     fitness_goal: v.string(),
     fitness_level: v.string(),
+    equipment: v.optional(v.string()),
+    workout_duration: v.optional(v.string()),
     dietary_restrictions: v.string(),
   },
   handler: async (ctx, args): Promise<{ success: boolean; planId: string }> => {
@@ -249,12 +256,24 @@ export const generateFitnessPlan = action({
       console.log(`[generateFitnessPlan - Step 1: Auth] Verified user: ${userId}`);
 
       currentStep = "Step 2: Validate Input Data";
-      const { age, height, weight, injuries, workout_days, fitness_goal, fitness_level, dietary_restrictions } = args;
+      const {
+        age,
+        gender,
+        height,
+        weight,
+        injuries,
+        workout_days,
+        fitness_goal,
+        fitness_level,
+        equipment,
+        workout_duration,
+        dietary_restrictions,
+      } = args;
 
       const numDays = workout_days;
 
       console.log(
-        `[generateFitnessPlan - Step 2: Input] days=${numDays}, goal=${fitness_goal}, level=${fitness_level}, injuries=${injuries || "none"}, diet=${dietary_restrictions || "none"}`
+        `[generateFitnessPlan - Step 2: Input] days=${numDays}, goal=${fitness_goal}, level=${fitness_level}, gender=${gender || "unspecified"}, equipment=${equipment || "standard"}, duration=${workout_duration || "default"}, injuries=${injuries || "none"}, diet=${dietary_restrictions || "none"}`
       );
 
       // ── Build ordered day list ──────────────────────────────────────────────
@@ -332,7 +351,7 @@ export const generateFitnessPlan = action({
       const ageMatch = String(age).match(/(\d+)/);
       if (ageMatch) ageNum = parseInt(ageMatch[1], 10);
 
-      const tdeeData = estimateTDEE(weightKg, heightCm, ageNum, fitness_goal);
+      const tdeeData = estimateTDEE(weightKg, heightCm, ageNum, fitness_goal, gender);
 
       // ── Dietary restriction instruction ────────────────────────────────────
       const noDietRestriction =
@@ -366,11 +385,14 @@ export const generateFitnessPlan = action({
 
 USER PROFILE:
 - Age: ${age}
+- Gender: ${gender || "Not specified"}
 - Height: ${height}
 - Weight: ${weight}
 - Fitness goal: ${fitness_goal}
 - Fitness level: ${fitness_level}
 - Available workout days per week: ${numDays}
+- Equipment available: ${equipment || "Full Gym"}
+- Target session duration: ${workout_duration || "45–60 min"}
 - Injuries or physical limitations: ${injuries || "none"}
 
 STRICT RULES:
@@ -389,11 +411,13 @@ ${goalInstruction}
 RULE 4 — INJURIES:
 ${injuryInstruction}
 
-RULE 5 — SPECIFICITY: Do NOT generate a generic plan. The exercises, sets, reps and structure MUST meaningfully reflect the goal and level. A beginner weight-loss plan must look nothing like an advanced muscle-gain plan.
+RULE 5 — EQUIPMENT & DURATION: Select exercises that exclusively fit the user's available equipment (${equipment || "Full Gym"}). Target a total session length of ${workout_duration || "45–60 min"}.
 
-RULE 6 — NUMBERS ONLY: "sets" and "reps" MUST be plain integers. Never use strings. Use specific numbers only.
+RULE 6 — SPECIFICITY: Do NOT generate a generic plan. The exercises, sets, reps and structure MUST meaningfully reflect the goal and level. A beginner weight-loss plan must look nothing like an advanced muscle-gain plan.
 
-RULE 7 — OUTPUT: Return ONLY valid JSON. No markdown, no extra text, no code fences.
+RULE 7 — NUMBERS ONLY: "sets" and "reps" MUST be plain integers. Never use strings. Use specific numbers only.
+
+RULE 8 — OUTPUT: Return ONLY valid JSON. No markdown, no extra text, no code fences.
 
 Return this EXACT JSON structure:
 {
@@ -413,6 +437,7 @@ Return this EXACT JSON structure:
 
 USER PROFILE:
 - Age: ${age}
+- Gender: ${gender || "Not specified"}
 - Height: ${height}
 - Weight: ${weight}
 - Fitness goal: ${fitness_goal}
