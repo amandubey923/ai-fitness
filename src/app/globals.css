@@ -207,6 +207,34 @@
   animation: slow-spin 12s linear infinite;
 }
 
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+@keyframes cyber-pulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(24, 206, 242, 0.4));
+  }
+  50% {
+    opacity: 0.75;
+    filter: drop-shadow(0 0 14px rgba(24, 206, 242, 0.7));
+  }
+}
+
+.animate-cyber-pulse {
+  animation: cyber-pulse 3s ease-in-out infinite;
+}
+
 @keyframes sound-wave {
   0% {
     height: 10%;
@@ -234,6 +262,16 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scanline,
+  .animate-slow-spin,
+  .animate-float-slow,
+  .animate-cyber-pulse,
+  .animate-sound-wave {
+    animation: none !important;
+  }
 }
 
 /* Print & PDF Export Optimizations */
