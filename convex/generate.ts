@@ -100,6 +100,26 @@ function validateDietplan(plan: any) {
   };
 }
 
+function parseJSONFromText(text: string, type: "workout" | "diet"): any {
+  if (!text || typeof text !== "string") {
+    throw new Error(`AI returned empty response for ${type} plan`);
+  }
+  let cleaned = text.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  }
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      return JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
+    }
+    throw new Error(`AI returned invalid JSON for the ${type} plan`);
+  }
+}
+
 function estimateTDEE(
   weightKg: number,
   heightCm: number,
@@ -213,6 +233,9 @@ async function generateJSONContent(
         if (content) {
           return content;
         }
+      } else {
+        const errText = await response.text();
+        console.error(`[generateJSONContent] Groq error (${response.status}): ${errText}`);
       }
     } catch (groqErr: any) {
       console.error(`[generateJSONContent] Groq fallback failed:`, groqErr);
@@ -493,9 +516,9 @@ Return this EXACT JSON structure:
       currentStep = "Step 5: Parse and Validate Plans";
       let workoutplan: any;
       try {
-        workoutplan = JSON.parse(workoutText);
-      } catch {
-        throw new Error("AI returned invalid JSON for the workout plan");
+        workoutplan = parseJSONFromText(workoutText, "workout");
+      } catch (e) {
+        throw new Error(e instanceof Error ? e.message : "AI returned invalid JSON for the workout plan");
       }
       try {
         workoutplan = validateWorkoutplan(workoutplan, numDays);
@@ -506,9 +529,9 @@ Return this EXACT JSON structure:
       // ── Parse diet ────────────────────────────────────────────────────────
       let dietplan: any;
       try {
-        dietplan = JSON.parse(dietText);
-      } catch {
-        throw new Error("AI returned invalid JSON for the diet plan");
+        dietplan = parseJSONFromText(dietText, "diet");
+      } catch (e) {
+        throw new Error(e instanceof Error ? e.message : "AI returned invalid JSON for the diet plan");
       }
       try {
         dietplan = validateDietplan(dietplan);

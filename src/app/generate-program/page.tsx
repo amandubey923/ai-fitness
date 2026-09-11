@@ -192,12 +192,15 @@ const GenerateProgramPage = () => {
       }, 1500);
     } catch (err: any) {
       console.error("Plan generation error:", err);
-      const errMsg = err?.message || "";
-      if (errMsg.includes("Not authenticated")) {
+      const rawMsg = err instanceof Error ? err.message : String(err || "");
+      if (rawMsg.includes("Not authenticated")) {
         setError("You must be signed in to generate a plan.");
-      } else if (errMsg && !errMsg.includes("Server Error")) {
-        const cleanMsg = errMsg.replace(/^Uncaught (?:Error: )?/, "").trim();
-        setError(cleanMsg.length > 120 ? "Plan generation failed. Please try again in a moment." : cleanMsg);
+      } else if (rawMsg) {
+        const cleanMsg = rawMsg
+          .replace(/^\[CONVEX[^\]]*\]\s*/, "")
+          .replace(/^(?:Server Error\s*)?(?:Uncaught\s*)?(?:Error:\s*)?/, "")
+          .trim();
+        setError(cleanMsg || "Plan generation failed. Please try again in a moment.");
       } else {
         setError("Plan generation failed. Please try again in a moment.");
       }
