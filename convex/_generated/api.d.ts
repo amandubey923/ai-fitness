@@ -10,6 +10,7 @@
 
 import type * as generate from "../generate.js";
 import type * as http from "../http.js";
+import type * as logs from "../logs.js";
 import type * as plans from "../plans.js";
 import type * as users from "../users.js";
 
@@ -22,6 +23,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   generate: typeof generate;
   http: typeof http;
+  logs: typeof logs;
   plans: typeof plans;
   users: typeof users;
 }>;

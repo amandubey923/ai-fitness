@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, AlertCircle, Check, RefreshCw } from "lucide-react";
 
@@ -25,7 +25,7 @@ interface PlanOptimizerDrawerProps {
   dietaryOptions: string[];
 }
 
-export default function PlanOptimizerDrawer({
+function PlanOptimizerDrawerComponent({
   isOpen,
   onClose,
   modifyGoal,
@@ -240,3 +240,5 @@ export default function PlanOptimizerDrawer({
     </div>
   );
 }
+
+export default memo(PlanOptimizerDrawerComponent);

@@ -79,6 +79,18 @@ export const deletePlan = mutation({
 
     const wasActive = plan.isActive;
 
+    // Delete associated workout_logs for this plan
+    const associatedLogs = await ctx.db
+      .query("workout_logs")
+      .withIndex("by_user_and_plan", (q) =>
+        q.eq("userId", args.userId).eq("planId", args.planId)
+      )
+      .collect();
+
+    for (const log of associatedLogs) {
+      await ctx.db.delete(log._id);
+    }
+
     // Delete the plan document
     await ctx.db.delete(args.planId);
 

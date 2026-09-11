@@ -43,4 +43,17 @@ export default defineSchema({
   })
     .index("by_user_id", ["userId"])
     .index("by_active", ["isActive"]),
+
+  workout_logs: defineTable({
+    userId: v.string(),
+    planId: v.id("plans"),
+    date: v.string(), // "YYYY-MM-DD"
+    routineKey: v.string(), // "${day}_${routineIndex}"
+    exerciseName: v.string(),
+    completed: v.boolean(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_user_and_plan", ["userId", "planId"])
+    .index("by_user_plan_date", ["userId", "planId", "date"])
+    .index("by_user_date", ["userId", "date"]),
 });

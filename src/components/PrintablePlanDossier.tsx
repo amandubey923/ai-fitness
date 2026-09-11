@@ -1,3 +1,5 @@
+import React, { memo } from "react";
+
 interface RoutineItem {
   name: string;
   sets?: number;
@@ -32,7 +34,7 @@ interface PrintablePlanDossierProps {
   userName?: string | null;
 }
 
-export default function PrintablePlanDossier({
+function PrintablePlanDossierComponent({
   plan,
   userName,
 }: PrintablePlanDossierProps) {
@@ -197,4 +199,6 @@ export default function PrintablePlanDossier({
     </div>
   );
 }
+
+export default memo(PrintablePlanDossierComponent);
 

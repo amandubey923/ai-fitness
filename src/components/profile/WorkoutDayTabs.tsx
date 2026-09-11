@@ -1,5 +1,5 @@
 import React from "react";
-import { CalendarIcon, CheckCircle2, Circle, RotateCcw } from "lucide-react";
+import { CalendarIcon, CheckCircle2, Circle, RotateCcw, Flame, Trophy, TrendingUp } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -27,6 +27,10 @@ interface WorkoutDayTabsProps {
   totalCompletedCount: number;
   totalRoutinesInPlan: number;
   progressPercent: number;
+  currentStreak?: number;
+  longestStreak?: number;
+  weeklyAdherence?: number;
+  totalCompletions?: number;
   onToggleComplete: (key: string) => void;
   onResetDayCompletion: (day: string) => void;
   onRequestSwap: (key: string, name: string, day: string) => void;
@@ -46,6 +50,10 @@ export default function WorkoutDayTabs({
   totalCompletedCount,
   totalRoutinesInPlan,
   progressPercent,
+  currentStreak = 0,
+  longestStreak = 0,
+  weeklyAdherence = 0,
+  totalCompletions = 0,
   onToggleComplete,
   onResetDayCompletion,
   onRequestSwap,
@@ -82,6 +90,36 @@ export default function WorkoutDayTabs({
               style={{ width: `${progressPercent}%` }}
             />
           </div>
+        </div>
+      </div>
+
+      {/* COMPACT PROGRESS STATS STRIP */}
+      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-lg border border-border/80 bg-card/25 font-mono text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2.5 py-1 rounded bg-background/40 border border-border/40">
+          <span className="text-muted-foreground uppercase text-[10px] sm:text-xs flex items-center gap-1">
+            <Flame className="size-3 text-amber-400" /> STREAK
+          </span>
+          <span className="text-foreground font-bold text-xs sm:text-sm text-amber-400">
+            {currentStreak} {currentStreak === 1 ? "Day" : "Days"}
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2.5 py-1 rounded bg-background/40 border border-border/40">
+          <span className="text-muted-foreground uppercase text-[10px] sm:text-xs flex items-center gap-1">
+            <TrendingUp className="size-3 text-primary" /> THIS WEEK
+          </span>
+          <span className="text-foreground font-bold text-xs sm:text-sm text-primary">
+            {weeklyAdherence}%
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2.5 py-1 rounded bg-background/40 border border-border/40">
+          <span className="text-muted-foreground uppercase text-[10px] sm:text-xs flex items-center gap-1">
+            <Trophy className="size-3 text-emerald-400" /> COMPLETED
+          </span>
+          <span className="text-foreground font-bold text-xs sm:text-sm text-emerald-400">
+            {totalCompletions || totalCompletedCount} Total
+          </span>
         </div>
       </div>
 

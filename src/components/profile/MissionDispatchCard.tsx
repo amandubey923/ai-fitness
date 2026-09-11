@@ -1,7 +1,7 @@
 import React from "react";
 import CornerElements from "@/components/CornerElements";
 import { Button } from "@/components/ui/button";
-import { Activity } from "lucide-react";
+import { Activity, Flame } from "lucide-react";
 
 interface TodaySummary {
   todayName: string;
@@ -20,11 +20,13 @@ interface TodaySummary {
 
 interface MissionDispatchCardProps {
   todaySummary: TodaySummary;
+  currentStreak?: number;
   onStartWorkout: () => void;
 }
 
 export default function MissionDispatchCard({
   todaySummary,
+  currentStreak = 0,
   onStartWorkout,
 }: MissionDispatchCardProps) {
   const percent = todaySummary.totalRoutines
@@ -41,13 +43,21 @@ export default function MissionDispatchCard({
             MISSION DISPATCH • {todaySummary.todayName}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            CALORIE TARGET:
-          </span>
-          <span className="font-mono text-xs sm:text-sm font-bold text-foreground bg-secondary/15 px-2 py-0.5 rounded border border-border">
-            {todaySummary.dailyCalories} KCAL
-          </span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* CURRENT STREAK BADGE */}
+          <div className="flex items-center gap-1.5 bg-amber-500/15 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded font-mono text-xs font-bold tracking-wide">
+            <Flame className="size-3.5 fill-amber-400/30" />
+            <span>{currentStreak} {currentStreak === 1 ? "DAY" : "DAYS"} STREAK</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              CALORIE TARGET:
+            </span>
+            <span className="font-mono text-xs sm:text-sm font-bold text-foreground bg-secondary/15 px-2 py-0.5 rounded border border-border">
+              {todaySummary.dailyCalories} KCAL
+            </span>
+          </div>
         </div>
       </div>
 

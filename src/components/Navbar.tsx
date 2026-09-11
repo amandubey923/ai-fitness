@@ -1,7 +1,7 @@
 "use client";
 
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
-import { DumbbellIcon, HomeIcon, UserIcon } from "lucide-react";
+import { DumbbellIcon, HomeIcon, UserIcon, Activity } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import FitPilotLogo from "./FitPilotLogo";
@@ -48,6 +48,14 @@ const Navbar = () => {
               >
                 <UserIcon size={15} />
                 <span>Profile</span>
+              </Link>
+
+              <Link
+                href="/progress"
+                className="flex items-center gap-1.5 text-xs sm:text-sm font-mono text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Activity size={15} />
+                <span>Progress</span>
               </Link>
 
               <Button

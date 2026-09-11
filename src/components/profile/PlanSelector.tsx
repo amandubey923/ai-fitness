@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import CornerElements from "@/components/CornerElements";
 import { Trash2 } from "lucide-react";
 
@@ -15,7 +15,7 @@ interface PlanSelectorProps {
   onRequestDelete: (plan: { id: string; name: string; isActive: boolean }) => void;
 }
 
-export default function PlanSelector({
+function PlanSelectorComponent({
   plans,
   selectedPlanId,
   onSelectPlan,
@@ -81,3 +81,5 @@ export default function PlanSelector({
     </div>
   );
 }
+
+export default memo(PlanSelectorComponent);
